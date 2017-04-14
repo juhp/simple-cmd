@@ -1,0 +1,20 @@
+name:                simple-cmd
+version:             0.1.0.0
+synopsis:            Simple shell commands
+description:         Simple shell command processing
+license:             BSD3
+license-file:        LICENSE
+author:              Jens Petersen
+maintainer:          juhpetersen@gmail.com
+copyright:           Jens Petersen <juhpetersen@gmail.com>
+category:            System
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     SimpleCommand
+  -- other-modules:       
+  build-depends:       base, filepath, process
+  default-language:    Haskell2010
+  default-extensions:  CPP
