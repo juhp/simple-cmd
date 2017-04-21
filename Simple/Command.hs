@@ -1,4 +1,4 @@
-module SimpleCommand (
+module Simple.Command (
   cmd,
   cmd_,
   cmdBool,
