@@ -1,7 +1,12 @@
 name:                simple-cmd
 version:             0.1.0.0
-synopsis:            Simple shell commands
-description:         Simple shell command processing
+synopsis:            Simple String-based process commands
+description:
+            Thin wrappers over the System.Process (readProcess,
+            readProcessWithExitCode, and rawSystem). The idea is just
+            to provide some simple common idioms for easy calling out
+            to commands from programs.  For proper shell-scripting
+            please use turtle, shelly, command, etc.
 license:             BSD3
 license-file:        LICENSE
 author:              Jens Petersen

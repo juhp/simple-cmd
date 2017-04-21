@@ -2,4 +2,10 @@
 
 # simple-cmd
 
-Some simple String wrappers of `readProcess`, `readProcessWithExitCode`, `rawSystem` from the Haskell `process` library.
+Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
+`rawSystem` from the Haskell `process` library.
+
+It can also be used as a copy library.
+
+## Examples
+
