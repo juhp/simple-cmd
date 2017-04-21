@@ -15,7 +15,6 @@ tested-with:         GHC == 7.0.4, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4,
 
 library
   exposed-modules:     SimpleCommand
-  -- other-modules:       
   build-depends:       base, filepath, process
   default-language:    Haskell2010
   default-extensions:  CPP

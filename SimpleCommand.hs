@@ -12,6 +12,10 @@ module SimpleCommand (
   sudo,
   (+-+)) where
 
+#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,2))
+#else
+import Control.Applicative ((<$>))
+#endif
 import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
 import System.Process (readProcess, readProcessWithExitCode, rawSystem)
