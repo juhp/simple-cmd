@@ -114,9 +114,9 @@ s +-+ t | last s == ' ' = s ++ t
 s +-+ t = s ++ " " ++ t
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,2))
-notNull :: [a] -> Bool
-#else
 notNull :: Foldable t => t a -> Bool
+#else
+notNull :: [a] -> Bool
 #endif
 notNull = not . null
 
