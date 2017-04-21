@@ -7,6 +7,8 @@ module Simple.Command (
   cmdMaybe,
   cmdQuiet,
   cmdSilent,
+  git,
+  git_,
   notNull,
   shell,
   sudo,
@@ -123,3 +125,11 @@ notNull = not . null
 -- singleLine :: String -> String
 -- singleLine "" = ""
 -- singleLine s = (head . lines) s
+
+git :: String -> [String] -> IO String
+git c args =
+  cmd "git" (c:args)
+
+git_ :: String -> [String] -> IO ()
+git_ c args =
+  cmd_ "git" (c:args)
