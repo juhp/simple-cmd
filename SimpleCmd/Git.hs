@@ -11,6 +11,11 @@ import System.FilePath ((</>))
 
 import SimpleCmd (cmd, cmd_, egrep_, removePrefix)
 
+#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,2))
+#else
+import Control.Applicative ((<$>))
+#endif
+
 -- | Run git command and return output
 git :: String -> [String] -> IO String
 git c args =
