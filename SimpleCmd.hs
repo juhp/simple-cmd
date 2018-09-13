@@ -12,7 +12,7 @@ module SimpleCmd (
   egrep_, grep_,
   logMsg,
   removePrefix, removeStrictPrefix, removeSuffix,
-  shell,
+  shell, shell_,
   sudo,
   (+-+)) where
 
@@ -72,6 +72,10 @@ cmdStdIn c args inp = removeTrailingNewline <$> readProcess c args inp
 -- | Run a command string in a shell, and return stdout
 shell :: String -> IO String
 shell cs = cmd "sh" ["-c", cs]
+
+-- | Run a command string in a shell, output goes to stdout
+shell_ :: String -> IO ()
+shell_ c = cmd_ "sh" ["-c", c]
 
 -- | Log a command with a datestamp
 cmdlog :: String -> [String] -> IO ()
