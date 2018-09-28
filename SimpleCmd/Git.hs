@@ -2,11 +2,12 @@ module SimpleCmd.Git (
   git,
   git_,
   gitBranch,
+  grepGitConfig,
   isGitDir,
   rwGitDir) where
 
 import Data.List (isPrefixOf)
-import System.Directory (doesDirectoryExist, getCurrentDirectory)
+import System.Directory (doesDirectoryExist)
 import System.FilePath ((</>))
 
 import SimpleCmd (cmd, cmd_, egrep_, removePrefix)
@@ -37,9 +38,12 @@ gitBranch =
 
 -- | Check if a git repo is under ssh
 rwGitDir :: IO Bool
-rwGitDir = do
-  gitDir <- getCurrentDirectory >>= isGitDir
-  if gitDir
-    then egrep_ "url = (ssh://|git@)" ".git/config"
-    else return False
+rwGitDir =
+  grepGitConfig "url = (ssh://|git@)"
 
+grepGitConfig :: String -> IO Bool
+grepGitConfig key = do
+  gitdir <- isGitDir "."
+  if gitdir
+    then egrep_ key ".git/config"
+    else return False
