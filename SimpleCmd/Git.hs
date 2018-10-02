@@ -10,7 +10,7 @@ import Data.List (isPrefixOf)
 import System.Directory (doesDirectoryExist)
 import System.FilePath ((</>))
 
-import SimpleCmd (cmd, cmd_, egrep_, removePrefix)
+import SimpleCmd (cmd, cmd_, cmdLines, egrep_, removePrefix)
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,2))
 #else
@@ -34,7 +34,7 @@ isGitDir dir = doesDirectoryExist (dir </> ".git")
 -- | Return the git branch of the current directory
 gitBranch :: IO String
 gitBranch =
-  removePrefix "* " . head . filter (isPrefixOf "* ") . lines <$> cmd "git" ["branch"]
+  removePrefix "* " . head . filter (isPrefixOf "* ") <$> cmdLines "git" ["branch"]
 
 -- | Check if a git repo is under ssh
 rwGitDir :: IO Bool

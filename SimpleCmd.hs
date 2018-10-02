@@ -2,6 +2,7 @@ module SimpleCmd (
   cmd, cmd_,
   cmdBool,
   cmdIgnoreErr,
+  cmdLines,
   cmdlog,
   cmdMaybe,
   cmdN,
@@ -64,6 +65,10 @@ cmdMaybe c args = do
   case ret of
     ExitSuccess -> return $ Just $ removeTrailingNewline out
     ExitFailure _ -> return Nothing
+
+-- | Run command, return list of stdout lines
+cmdLines :: String -> [String] -> IO [String]
+cmdLines c args = lines <$> cmd c args
 
 -- | Run a command, passing input string as stdin, and return stdout
 cmdStdIn :: String -> [String] -> String -> IO String
