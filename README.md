@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/juhp/simple-cmd.png)](https://travis-ci.org/juhp/simple-cmd)
-[![Hackage](http://img.shields.io/hackage/v/cabal-rpm.png)](http://hackage.haskell.org/package/simple-cmd)
+[![Hackage](http://img.shields.io/hackage/v/simple-cmd.png)](http://hackage.haskell.org/package/simple-cmd)
 
 # simple-cmd
 
