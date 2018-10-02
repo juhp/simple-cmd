@@ -9,6 +9,10 @@ Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
 ## Usage
 
 ```haskell
+import SimpleCmd
+```
+
+```haskell
 cmd_ :: String -> [String] -> IO ()
 ```
 outputs to stdout. For example
@@ -18,9 +22,12 @@ cmd_ "git" ["clone", url]
 ```
 This can shortened to `git_ "clone" [url]`.
 
-`cmd` returns stdout as a `String`.
+```haskell
+cmd :: String -> [String] -> IO String
+```
+returns stdout as a `String`.
 
-There are also `cmdBool`, cmdMaybe`, `cmdList`, `shell`, and others.
+There are also `cmdBool`, `cmdMaybe`, `cmdList`, `shell`, and others.
 
 Other examples:
 ```haskell
