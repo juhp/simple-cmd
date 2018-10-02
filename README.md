@@ -8,22 +8,22 @@ Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
 
 ## Usage
 
-```
+```haskell
 cmd_ :: String -> [String] -> IO ()
 ```
 outputs to stdout. For example
 
-```
+```haskell
 cmd_ "git" ["clone", url]
 ```
 This can shortened to `git_ "clone" [url]`.
 
-Whereas `cmd` returns stdout as a `String`.
+`cmd` returns stdout as a `String`.
 
-There are also `cmdBool`, cmdMaybe`, `cmdList`, and others.
+There are also `cmdBool`, cmdMaybe`, `cmdList`, `shell`, and others.
 
 Other examples:
-```
+```haskell
 gitBranch :: IO String
 grep_ pat file :: IO Bool
 sudo c args :: IO ()
