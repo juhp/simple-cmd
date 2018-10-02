@@ -6,16 +6,21 @@
 Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
 `rawSystem` from the Haskell `process` library.
 
-## Examples
+## Usage
 
-- - `cmd_ :: String -> [String] -> IO ()
-
-`cmd_ c args :: IO ()` outputs to stdout.
+```
+cmd_ :: String -> [String] -> IO ()
+```
+outputs to stdout. For example
 
 ```
 cmd_ "git" ["clone", url]
 ```
-It can shortened to `git_ clone [url]`.
+This can shortened to `git_ "clone" [url]`.
+
+Whereas `cmd` returns stdout as a `String`.
+
+There are also `cmdBool`, cmdMaybe`, `cmdList`, and others.
 
 Other examples:
 ```
@@ -23,3 +28,5 @@ gitBranch :: IO String
 grep_ pat file :: IO Bool
 sudo c args :: IO ()
 ```
+
+See the library documentation for more details.
