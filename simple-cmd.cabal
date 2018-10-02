@@ -3,10 +3,10 @@ version:             0.1.1
 synopsis:            Simple String-based process commands
 description:
             Thin wrappers over System.Process (readProcess,
-            readProcessWithExitCode, and rawSystem). The idea is just
-            to provide some simple common idioms for easy calling out
-            to commands from programs.  For more typeful shell-scripting
-            please use turtle, shelly, command, etc.
+            readProcessWithExitCode, and rawSystem). The idea is to provide
+            some simple common idioms for easy calling out to commands
+            from programs.  For more advanced shell-scripting or streaming
+            use turtle, shelly, command, etc.
 license:             BSD3
 license-file:        LICENSE
 author:              Jens Petersen

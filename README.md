@@ -10,3 +10,18 @@ It can also be used as a copy library.
 
 ## Examples
 
+- - `cmd_ :: String -> [String] -> IO ()
+
+`cmd_ c args :: IO ()` outputs to stdout.
+
+```
+cmd_ "git" ["clone", url]
+```
+It can shortened to `git_ clone [url]`.
+
+Other examples:
+```
+gitBranch :: IO String
+grep_ pat file :: IO Bool
+sudo c args :: IO ()
+```

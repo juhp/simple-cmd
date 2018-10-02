@@ -1,5 +1,10 @@
 # Revision history for simple-cmd
 
+## 0.1.1 -- 2018-10-02
+- cmdLines
+- Git: grepGitConfig
+- new Rpm: rpmspec
+
 ## 0.1.0.0  -- 2018-09-13
 
 - Initial release, providing:
