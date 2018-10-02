@@ -41,6 +41,8 @@ rwGitDir :: IO Bool
 rwGitDir =
   grepGitConfig "url = (ssh://|git@)"
 
+-- | grep ".git/config"
+-- | since 0.1.1
 grepGitConfig :: String -> IO Bool
 grepGitConfig key = do
   gitdir <- isGitDir "."

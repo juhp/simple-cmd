@@ -67,6 +67,7 @@ cmdMaybe c args = do
     ExitFailure _ -> return Nothing
 
 -- | Run command, return list of stdout lines
+-- | since 0.1.1
 cmdLines :: String -> [String] -> IO [String]
 cmdLines c args = lines <$> cmd c args
 
