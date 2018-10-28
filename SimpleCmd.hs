@@ -134,9 +134,11 @@ cmdIgnoreErr c args input = do
   (_exit, out, _err) <- readProcessWithExitCode c args input
   return out
 
--- grep :: String -> FilePath -> IO [String]
--- grep pat file =
---   cmdLines "grep" [pat, file]
+-- | 'grep pat file' greps pattern in file, and returns list of matches
+-- @since 0.1.2
+grep :: String -> FilePath -> IO [String]
+grep pat file =
+  cmdLines "grep" [pat, file]
 
 -- | grep a pattern in file and return Boolean status
 grep_ :: String -> FilePath -> IO Bool
