@@ -17,31 +17,34 @@ import SimpleCmd (cmd, cmd_, cmdLines, egrep_, removePrefix)
 import Control.Applicative ((<$>))
 #endif
 
--- | Run git command and return output
-git :: String -> [String] -> IO String
+-- | 'git c args' runs git command and return output
+git :: String -- ^ git command
+    -> [String] -- ^ arguments
+    -> IO String -- ^ output
 git c args =
   cmd "git" (c:args)
 
--- | Run git command with output to stdout and stderr
+-- | 'git_ c args' run git command with output to stdout and stderr
 git_ :: String -> [String] -> IO ()
 git_ c args =
   cmd_ "git" (c:args)
 
--- | Check if directory has a .git/ dir
+-- | 'isGitDir dir' checks if directory has a .git/ subdir
 isGitDir :: FilePath -> IO Bool
 isGitDir dir = doesDirectoryExist (dir </> ".git")
 
--- | Return the git branch of the current directory
+-- | 'gitBranch' returns the git branch of the current directory
 gitBranch :: IO String
 gitBranch =
   removePrefix "* " . head . filter (isPrefixOf "* ") <$> cmdLines "git" ["branch"]
 
--- | Check if a git repo is under ssh
+-- | 'rwGitDir' checks if a git repo is under ssh
 rwGitDir :: IO Bool
 rwGitDir =
   grepGitConfig "url = (ssh://|git@)"
 
--- | grep ".git/config"
+-- | 'grepGitConfig pat' greps ".git/config" for extended regexp
+--
 -- @since 0.1.1
 grepGitConfig :: String -> IO Bool
 grepGitConfig key = do

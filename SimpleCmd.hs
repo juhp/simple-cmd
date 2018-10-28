@@ -1,3 +1,31 @@
+{-|
+Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
+`rawSystem` from the Haskell `process` library.
+
+Simplest is
+
+@cmd_ :: String -> [String] -> IO ()@
+
+which outputs to stdout. For example:
+
+@cmd_ "git" ["clone", url]@
+
+Then
+
+@cmd :: String -> [String] -> IO String@
+
+returns stdout as a @String@.
+
+There are also @cmdBool@, @cmdMaybe@, @cmdList@, @shell@, and others.
+
+Other examples:
+
+@grep_ pat file :: IO Bool@
+
+@sudo c args :: IO ()@
+
+-}
+
 module SimpleCmd (
   cmd, cmd_,
   cmdBool,
@@ -10,7 +38,7 @@ module SimpleCmd (
   cmdSilent,
   cmdStdIn,
   cmdStdErr,
-  egrep_, grep_,
+  egrep_, grep, grep_,
   logMsg,
   removePrefix, removeStrictPrefix, removeSuffix,
   shell, shell_,
@@ -38,11 +66,13 @@ removeTrailingNewline str =
 quoteCmd :: String -> [String] -> String
 quoteCmd c args = "'" ++ unwords (c:args) ++ "'"
 
--- | Run a command in a process and return stdout
-cmd :: String -> [String] -> IO String
+-- | 'cmd c args' runs a command in a process and returns stdout
+cmd :: String -- ^ command to run
+    -> [String] -- ^ list of arguments
+    -> IO String -- ^ stdout
 cmd c args = cmdStdIn c args ""
 
--- | Run command in process, output goes to stdout and stderr
+-- | 'cmd_ c args' runs command in a process, output goes to stdout and stderr
 cmd_ :: String -> [String] -> IO ()
 cmd_ c args = do
   ret <- rawSystem c args
@@ -50,7 +80,7 @@ cmd_ c args = do
     ExitSuccess -> return ()
     ExitFailure n -> error $ quoteCmd c args +-+ "failed with exit code" +-+ show n
 
--- | Run a command, and return Boolean status
+-- | 'cmdBool c args' runs a command, and return Boolean status
 cmdBool :: String -> [String] -> IO Bool
 cmdBool c args = do
   ret <- rawSystem c args
@@ -58,7 +88,7 @@ cmdBool c args = do
     ExitSuccess -> return True
     ExitFailure _ -> return False
 
--- | Run a command in a process, maybe returning output if it succeeds
+-- | 'cmdMaybe c args' runs a command, maybe returning output if it succeeds
 cmdMaybe :: String -> [String] -> IO (Maybe String)
 cmdMaybe c args = do
   (ret, out, _err) <- readProcessWithExitCode c args ""
@@ -66,45 +96,47 @@ cmdMaybe c args = do
     ExitSuccess -> return $ Just $ removeTrailingNewline out
     ExitFailure _ -> return Nothing
 
--- | Run command, return list of stdout lines
+-- | 'cmdLines c args' runs a command, and returns list of stdout lines
+--
 -- @since 0.1.1
 cmdLines :: String -> [String] -> IO [String]
 cmdLines c args = lines <$> cmd c args
 
--- | Run a command, passing input string as stdin, and return stdout
+-- | 'cmdStdIn c args inp' runs a command, passing input string as stdin, and returns stdout
 cmdStdIn :: String -> [String] -> String -> IO String
 cmdStdIn c args inp = removeTrailingNewline <$> readProcess c args inp
 
--- | Run a command string in a shell, and return stdout
+-- | 'shell cs' runs a command string in a shell, and returns stdout
 shell :: String -> IO String
 shell cs = cmd "sh" ["-c", cs]
 
--- | Run a command string in a shell, output goes to stdout
+-- | 'shell_ c' runs a command string in a shell, output goes to stdout
 shell_ :: String -> IO ()
 shell_ c = cmd_ "sh" ["-c", c]
 
--- | Log a command with a datestamp
+-- | 'cmdLog c args' logs a command with a datestamp
 cmdlog :: String -> [String] -> IO ()
 cmdlog c args = do
   logMsg $ unwords $ c:args
   cmd_ c args
 
+-- | 'logMsg msg' outputs message with a timestamp
 logMsg :: String -> IO ()
 logMsg msg = do
   date <- cmd "date" ["+%T"]
   putStrLn $ date +-+ msg
 
--- | Dry-run a command: print it to stdout - more used for debugging
+-- | 'cmdN c args' dry-runs a command: prints command to stdout - more used for debugging
 cmdN :: String -> [String] -> IO ()
 cmdN c args = putStrLn $ unwords $ c:args
 
--- | Run command in a process, returning stdout and stderr
+-- | 'cmdStdErr c args' runs command in a process, returning stdout and stderr
 cmdStdErr :: String -> [String] -> IO (String, String)
 cmdStdErr c args = do
   (_ret, out, err) <- readProcessWithExitCode c args ""
   return (removeTrailingNewline out, removeTrailingNewline err)
 
--- -- | Run command, if it fails output msg as error.
+-- -- | 'cmdAssert msg c args' runs command, if it fails output msg as error.
 -- cmdAssert :: String -> String -> [String] -> IO ()
 -- cmdAssert msg c args = do
 --   ret <- rawSystem c args
@@ -112,7 +144,7 @@ cmdStdErr c args = do
 --     ExitSuccess -> return ()
 --     ExitFailure _ -> error msg
 
--- | Run a command hiding stderr, if it succeeds return stdout
+-- | 'cmdQuiet c args' runs a command hiding stderr, if it succeeds returns stdout
 cmdQuiet :: String -> [String] -> IO String
 cmdQuiet c args = do
   (ret, out, err) <- readProcessWithExitCode c args ""
@@ -120,7 +152,7 @@ cmdQuiet c args = do
     ExitSuccess -> return $removeTrailingNewline out
     ExitFailure n -> error $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
 
--- | Run a command hiding stdout: stderr is only output if it fails.
+-- | 'cmdSilent c args' runs a command hiding stdout: stderr is only output if it fails.
 cmdSilent :: String -> [String] -> IO ()
 cmdSilent c args = do
   (ret, _, err) <- readProcessWithExitCode c args ""
@@ -128,30 +160,35 @@ cmdSilent c args = do
     ExitSuccess -> return ()
     ExitFailure n -> error $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
 
--- | Run a command, drop stderr, and return stdout
+-- | 'cmdIgnoreErr c args inp' runs a command with input, drops stderr, and return stdout
 cmdIgnoreErr :: String -> [String] -> String -> IO String
 cmdIgnoreErr c args input = do
   (_exit, out, _err) <- readProcessWithExitCode c args input
   return out
 
 -- | 'grep pat file' greps pattern in file, and returns list of matches
+--
 -- @since 0.1.2
 grep :: String -> FilePath -> IO [String]
 grep pat file =
   cmdLines "grep" [pat, file]
 
--- | grep a pattern in file and return Boolean status
-grep_ :: String -> FilePath -> IO Bool
+-- | 'grep_ pat file' greps pattern in file and returns Boolean status
+grep_ :: String -- ^ pattern
+      -> FilePath -- ^ file
+      -> IO Bool -- ^ result
 grep_ pat file =
   cmdBool "grep" ["-q", pat, file]
 
--- | grep for extended regexp in file, and return Boolean status
+-- | 'egrep_ pat file' greps extended regexp in file, and returns Boolean status
 egrep_ :: String -> FilePath -> IO Bool
 egrep_ pat file =
   cmdBool "grep" ["-q", "-e", pat, file]
 
--- | sudo a command
-sudo :: String -> [String] -> IO ()
+-- | 'sudo c args' runs a command as sudo
+sudo :: String -- ^ command
+     -> [String] -- ^ arguments
+     -> IO ()
 sudo c args = cmdlog "sudo" (c:args)
 
 -- | Combine strings with a single space
@@ -167,17 +204,17 @@ s +-+ t = s ++ " " ++ t
 -- singleLine "" = ""
 -- singleLine s = (head . lines) s
 
--- | Remove a prefix from a string if there
+-- | 'removePrefix prefix original' removes prefix from string if present
 removePrefix :: String -> String-> String
 removePrefix prefix orig =
   fromMaybe orig $ stripPrefix prefix orig
 
--- | Remove prefix, or fail with error
+-- | 'removeStrictPrefix prefix original' removes prefix, or fails with error
 removeStrictPrefix :: String -> String -> String
 removeStrictPrefix prefix orig =
   fromMaybe (error prefix +-+ "is not prefix of" +-+ orig) $ stripPrefix prefix orig
 
--- | Remove a suffix from a string if there
+-- | 'removeSuffix suffix original' removes suffix from string if present
 removeSuffix :: String -> String -> String
 removeSuffix suffix orig =
   fromMaybe orig $ stripSuffix suffix orig
