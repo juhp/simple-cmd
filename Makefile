@@ -21,4 +21,4 @@ git-push:
 	git push --tags
 
 copy:
-	cp -p dist/$(NAME)-$(VERSION).tar.gz ~/fedora/haskell/$(NAME)/master
+	cp -p dist/$(NAME)-$(VERSION).tar.gz ~/fedora/haskell/ghc-$(NAME)/
