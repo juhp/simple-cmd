@@ -1,5 +1,9 @@
 # Revision history for simple-cmd
 
+## 0.1.2 -- 2018-10-28
+- grep
+- improve haddock documentation
+
 ## 0.1.1 -- 2018-10-02
 - cmdLines
 - Git: grepGitConfig
