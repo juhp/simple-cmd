@@ -1,6 +1,6 @@
 {-|
 Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
-`rawSystem` from the Haskell `process` library.
+`rawSystem` from the Haskell <https://hackage.haskell.org/package/process process> library.
 
 Simplest is
 
@@ -191,7 +191,7 @@ sudo :: String -- ^ command
      -> IO ()
 sudo c args = cmdlog "sudo" (c:args)
 
--- | Combine strings with a single space
+-- | Combine two strings with a single space
 infixr 4 +-+
 (+-+) :: String -> String -> String
 "" +-+ s = s
