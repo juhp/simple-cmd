@@ -2,6 +2,7 @@ module SimpleCmd.Git (
   git,
   git_,
   gitBranch,
+  gitDiffQuiet,
   grepGitConfig,
   isGitDir,
   rwGitDir) where
@@ -10,7 +11,7 @@ import Data.List (isPrefixOf)
 import System.Directory (doesDirectoryExist)
 import System.FilePath ((</>))
 
-import SimpleCmd (cmd, cmd_, cmdLines, egrep_, removePrefix)
+import SimpleCmd (cmd, cmd_, cmdBool, cmdLines, egrep_, removePrefix)
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
 #else
@@ -52,3 +53,9 @@ grepGitConfig key = do
   if gitdir
     then egrep_ key ".git/config"
     else return False
+
+-- | 'gitDiffQuiet' checks if unchanged
+--
+-- @since 0.2.0
+gitDiffQuiet :: [String] -> IO Bool
+gitDiffQuiet args = cmdBool "git" $ ["diff", "--quiet"] ++ args
