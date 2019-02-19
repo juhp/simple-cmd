@@ -42,7 +42,7 @@ gitBranch =
 -- | 'rwGitDir' checks if a git repo is under ssh
 rwGitDir :: IO Bool
 rwGitDir =
-  grepGitConfig "url = (ssh://|git@)"
+  grepGitConfig "url = \\(ssh://\\|git@\\)"
 
 -- | 'grepGitConfig pat' greps ".git/config" for extended regexp
 --
