@@ -1,5 +1,10 @@
 # Revision history for simple-cmd
 
+## 0.1.3 -- 2019-02-20
+- gitDiffQuiet
+- fix rwGitDir regexp
+- use errorWithoutStackTrace
+
 ## 0.1.2 -- 2018-10-28
 - grep
 - improve haddock documentation

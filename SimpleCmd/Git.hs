@@ -56,6 +56,6 @@ grepGitConfig key = do
 
 -- | 'gitDiffQuiet' checks if unchanged
 --
--- @since 0.2.0
+-- @since 0.1.3
 gitDiffQuiet :: [String] -> IO Bool
 gitDiffQuiet args = cmdBool "git" $ ["diff", "--quiet"] ++ args
