@@ -16,7 +16,7 @@ Then
 
 returns stdout as a @String@.
 
-There are also @cmdBool@, @cmdMaybe@, @cmdList@, @shell@, and others.
+There are also @cmdBool@, @cmdMaybe@, @cmdLines@, @shell@, and others.
 
 Other examples:
 
@@ -66,6 +66,13 @@ removeTrailingNewline str =
 quoteCmd :: String -> [String] -> String
 quoteCmd c args = "'" ++ unwords (c:args) ++ "'"
 
+error' :: String -> a
+#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,9,0))
+error' = errorWithoutStackTrace
+#else
+error' = error
+#endif
+
 -- | 'cmd c args' runs a command in a process and returns stdout
 cmd :: String -- ^ command to run
     -> [String] -- ^ list of arguments
@@ -78,7 +85,7 @@ cmd_ c args = do
   ret <- rawSystem c args
   case ret of
     ExitSuccess -> return ()
-    ExitFailure n -> error $ quoteCmd c args +-+ "failed with exit code" +-+ show n
+    ExitFailure n -> error' $ quoteCmd c args +-+ "failed with exit code" +-+ show n
 
 -- | 'cmdBool c args' runs a command, and return Boolean status
 cmdBool :: String -> [String] -> IO Bool
@@ -136,13 +143,13 @@ cmdStdErr c args = do
   (_ret, out, err) <- readProcessWithExitCode c args ""
   return (removeTrailingNewline out, removeTrailingNewline err)
 
--- -- | 'cmdAssert msg c args' runs command, if it fails output msg as error.
+-- -- | 'cmdAssert msg c args' runs command, if it fails output msg as error'.
 -- cmdAssert :: String -> String -> [String] -> IO ()
 -- cmdAssert msg c args = do
 --   ret <- rawSystem c args
 --   case ret of
 --     ExitSuccess -> return ()
---     ExitFailure _ -> error msg
+--     ExitFailure _ -> error' msg
 
 -- | 'cmdQuiet c args' runs a command hiding stderr, if it succeeds returns stdout
 cmdQuiet :: String -> [String] -> IO String
@@ -150,7 +157,7 @@ cmdQuiet c args = do
   (ret, out, err) <- readProcessWithExitCode c args ""
   case ret of
     ExitSuccess -> return $removeTrailingNewline out
-    ExitFailure n -> error $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
+    ExitFailure n -> error' $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
 
 -- | 'cmdSilent c args' runs a command hiding stdout: stderr is only output if it fails.
 cmdSilent :: String -> [String] -> IO ()
@@ -158,7 +165,7 @@ cmdSilent c args = do
   (ret, _, err) <- readProcessWithExitCode c args ""
   case ret of
     ExitSuccess -> return ()
-    ExitFailure n -> error $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
+    ExitFailure n -> error' $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
 
 -- | 'cmdIgnoreErr c args inp' runs a command with input, drops stderr, and return stdout
 cmdIgnoreErr :: String -> [String] -> String -> IO String
@@ -209,10 +216,10 @@ removePrefix :: String -> String-> String
 removePrefix prefix orig =
   fromMaybe orig $ stripPrefix prefix orig
 
--- | 'removeStrictPrefix prefix original' removes prefix, or fails with error
+-- | 'removeStrictPrefix prefix original' removes prefix, or fails with error'
 removeStrictPrefix :: String -> String -> String
 removeStrictPrefix prefix orig =
-  fromMaybe (error prefix +-+ "is not prefix of" +-+ orig) $ stripPrefix prefix orig
+  fromMaybe (error' prefix +-+ "is not prefix of" +-+ orig) $ stripPrefix prefix orig
 
 -- | 'removeSuffix suffix original' removes suffix from string if present
 removeSuffix :: String -> String -> String
