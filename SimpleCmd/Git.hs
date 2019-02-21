@@ -1,3 +1,7 @@
+{-|
+Some wrappers for git commands.
+-}
+
 module SimpleCmd.Git (
   git,
   git_,

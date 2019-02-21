@@ -1,3 +1,7 @@
+{-|
+This Rpm module currently only provides @rpmspec@.
+-}
+
 module SimpleCmd.Rpm (
   rpmspec
   ) where

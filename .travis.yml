@@ -10,4 +10,4 @@ ghc:
 - 8.4.4
 - 8.6.3
 script:
-- cabal configure && cabal build
+- cabal configure && cabal build && cabal haddock
