@@ -49,11 +49,15 @@ module SimpleCmd (
 #else
 import Control.Applicative ((<$>))
 #endif
+import Control.Monad (when)
 
 import Data.List (stripPrefix)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (isNothing, fromMaybe)
 
+import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
+import System.IO (hPutStrLn, stderr)
+import System.Posix.User (getEffectiveUserID)
 import System.Process (readProcess, readProcessWithExitCode, rawSystem)
 
 removeTrailingNewline :: String -> String
@@ -196,7 +200,15 @@ egrep_ pat file =
 sudo :: String -- ^ command
      -> [String] -- ^ arguments
      -> IO ()
-sudo c args = cmdlog "sudo" (c:args)
+sudo c args = do
+  uid <- getEffectiveUserID
+  sd <- if uid == 0
+    then return Nothing
+    else findExecutable "sudo"
+  let noSudo = isNothing sd
+  when (uid /= 0 && noSudo) $
+    hPutStrLn stderr "'sudo' not found"
+  cmdlog (fromMaybe c sd) (if noSudo then args else c:args)
 
 -- | Combine two strings with a single space
 infixr 4 +-+
