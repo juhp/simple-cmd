@@ -1,5 +1,8 @@
 # Revision history for simple-cmd
 
+## 0.1.3.1
+- sudo: ignored for root or when no sudo installed
+
 ## 0.1.3 -- 2019-02-20
 - gitDiffQuiet
 - fix rwGitDir regexp
