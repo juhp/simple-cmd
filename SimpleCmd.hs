@@ -38,6 +38,7 @@ module SimpleCmd (
   cmdSilent,
   cmdStdIn,
   cmdStdErr,
+  error',
   egrep_, grep, grep_,
   logMsg,
   removePrefix, removeStrictPrefix, removeSuffix,
@@ -70,6 +71,9 @@ removeTrailingNewline str =
 quoteCmd :: String -> [String] -> String
 quoteCmd c args = "'" ++ unwords (c:args) ++ "'"
 
+-- | Alias for errorWithoutStackTrace (for base >= 4.9)
+--
+-- @since 0.1.4
 error' :: String -> a
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,9,0))
 error' = errorWithoutStackTrace
