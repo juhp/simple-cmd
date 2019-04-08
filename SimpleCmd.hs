@@ -31,8 +31,8 @@ module SimpleCmd (
   cmdBool,
   cmdIgnoreErr,
   cmdLines,
-  cmdlog,
   cmdMaybe,
+  cmdLog, cmdlog {-TODO: remove for 0.2 -},
   cmdN,
   cmdQuiet,
   cmdSilent,
@@ -126,10 +126,16 @@ shell_ :: String -> IO ()
 shell_ c = cmd_ "sh" ["-c", c]
 
 -- | 'cmdLog c args' logs a command with a datestamp
-cmdlog :: String -> [String] -> IO ()
-cmdlog c args = do
+--
+-- @since 0.1.4
+cmdLog :: String -> [String] -> IO ()
+cmdLog c args = do
   logMsg $ unwords $ c:args
   cmd_ c args
+
+-- | 'cmdlog' deprecated alias for 'cmdLog' (to be removed in 0.2)
+cmdlog :: String -> [String] -> IO ()
+cmdlog = cmdLog
 
 -- | 'logMsg msg' outputs message with a timestamp
 logMsg :: String -> IO ()
@@ -208,7 +214,7 @@ sudo c args = do
   let noSudo = isNothing sd
   when (uid /= 0 && noSudo) $
     hPutStrLn stderr "'sudo' not found"
-  cmdlog (fromMaybe c sd) (if noSudo then args else c:args)
+  cmdLog (fromMaybe c sd) (if noSudo then args else c:args)
 
 -- | Combine two strings with a single space
 infixr 4 +-+
