@@ -1,5 +1,9 @@
 # Revision history for simple-cmd
 
+## 0.1.4
+- export error'
+- add cmdLog (deprecates cmdlog)
+
 ## 0.1.3.1
 - sudo: ignored for root or when no sudo installed
 
