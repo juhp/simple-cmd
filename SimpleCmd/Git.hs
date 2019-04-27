@@ -12,6 +12,7 @@ module SimpleCmd.Git (
   rwGitDir) where
 
 import Data.List (isPrefixOf)
+import Data.String (IsString)
 import System.Directory (doesDirectoryExist)
 import System.FilePath ((</>))
 
@@ -23,9 +24,10 @@ import Control.Applicative ((<$>))
 #endif
 
 -- | 'git c args' runs git command and return output
-git :: String -- ^ git command
+git :: IsString a =>
+       String -- ^ git command
     -> [String] -- ^ arguments
-    -> IO String -- ^ output
+    -> IO a -- ^ output
 git c args =
   cmd "git" (c:args)
 
