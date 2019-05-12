@@ -43,7 +43,7 @@ module SimpleCmd (
   logMsg,
   removePrefix, removeStrictPrefix, removeSuffix,
   shell, shell_,
-  sudo,
+  sudo, sudo_,
   warning,
   (+-+)) where
 
@@ -207,10 +207,12 @@ egrep_ :: String -> FilePath -> IO Bool
 egrep_ pat file =
   cmdBool "grep" ["-q", "-e", pat, file]
 
--- | 'sudo c args' runs a command as sudo
+-- | 'sudo c args' runs a command as sudo returning stdout
+--
+-- Result type changed from IO () to IO String in 0.2.0
 sudo :: String -- ^ command
      -> [String] -- ^ arguments
-     -> IO ()
+     -> IO String
 sudo c args = do
   uid <- getEffectiveUserID
   sd <- if uid == 0
@@ -218,7 +220,23 @@ sudo c args = do
     else findExecutable "sudo"
   let noSudo = isNothing sd
   when (uid /= 0 && noSudo) $
-    hPutStrLn stderr "'sudo' not found"
+    warning "'sudo' not found"
+  cmd (fromMaybe c sd) (if noSudo then args else c:args)
+
+-- | 'sudo_ c args' runs a command as sudo
+--
+-- @since 0.2.0
+sudo_ :: String -- ^ command
+     -> [String] -- ^ arguments
+     -> IO ()
+sudo_ c args = do
+  uid <- getEffectiveUserID
+  sd <- if uid == 0
+    then return Nothing
+    else findExecutable "sudo"
+  let noSudo = isNothing sd
+  when (uid /= 0 && noSudo) $
+    warning "'sudo' not found"
   cmdLog (fromMaybe c sd) (if noSudo then args else c:args)
 
 -- | Combine two strings with a single space

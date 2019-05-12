@@ -1,5 +1,5 @@
 name:                simple-cmd
-version:             0.1.4.1
+version:             0.2.0
 synopsis:            Simple String-based process commands
 description:
             Thin wrappers over System.Process (readProcess,
