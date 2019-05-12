@@ -44,6 +44,7 @@ module SimpleCmd (
   removePrefix, removeStrictPrefix, removeSuffix,
   shell, shell_,
   sudo,
+  warning,
   (+-+)) where
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
@@ -249,3 +250,7 @@ removeSuffix suffix orig =
   fromMaybe orig $ stripSuffix suffix orig
   where
     stripSuffix sf str = reverse <$> stripPrefix (reverse sf) (reverse str)
+
+-- | 'warning' outputs to stderr
+warning :: String -> IO ()
+warning = hPutStrLn stderr
