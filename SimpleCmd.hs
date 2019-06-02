@@ -43,6 +43,7 @@ module SimpleCmd (
   logMsg,
   removePrefix, removeStrictPrefix, removeSuffix,
   shell, shell_,
+  shellBool,
   sudo, sudo_,
   warning,
   (+-+)) where
@@ -128,7 +129,17 @@ shell cs = cmd "sh" ["-c", cs]
 
 -- | 'shell_ c' runs a command string in a shell, output goes to stdout
 shell_ :: String -> IO ()
-shell_ c = cmd_ "sh" ["-c", c]
+shell_ cs = cmd_ "sh" ["-c", cs]
+
+-- | 'shellBool cs' runs a command string in a shell, output goes to stdout
+--
+-- @since 0.2.0
+shellBool :: String -> IO Bool
+shellBool cs = do
+  ret <- rawSystem "sh" ["-c", cs]
+  case ret of
+    ExitSuccess -> return True
+    ExitFailure _ -> return False
 
 -- | 'cmdLog c args' logs a command with a datestamp
 --
