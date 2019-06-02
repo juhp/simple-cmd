@@ -224,15 +224,7 @@ egrep_ pat file =
 sudo :: String -- ^ command
      -> [String] -- ^ arguments
      -> IO String
-sudo c args = do
-  uid <- getEffectiveUserID
-  sd <- if uid == 0
-    then return Nothing
-    else findExecutable "sudo"
-  let noSudo = isNothing sd
-  when (uid /= 0 && noSudo) $
-    warning "'sudo' not found"
-  cmd (fromMaybe c sd) (if noSudo then args else c:args)
+sudo = sudoInternal cmd
 
 -- | 'sudo_ c args' runs a command as sudo
 --
@@ -240,7 +232,10 @@ sudo c args = do
 sudo_ :: String -- ^ command
      -> [String] -- ^ arguments
      -> IO ()
-sudo_ c args = do
+sudo_ = sudoInternal cmdLog
+
+sudoInternal :: (String -> [String] -> IO a) -> String -> [String] -> IO a
+sudoInternal exc c args = do
   uid <- getEffectiveUserID
   sd <- if uid == 0
     then return Nothing
@@ -248,7 +243,7 @@ sudo_ c args = do
   let noSudo = isNothing sd
   when (uid /= 0 && noSudo) $
     warning "'sudo' not found"
-  cmdLog (fromMaybe c sd) (if noSudo then args else c:args)
+  exc (fromMaybe c sd) (if noSudo then args else c:args)
 
 -- | Combine two strings with a single space
 infixr 4 +-+
