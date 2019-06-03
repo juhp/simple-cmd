@@ -2,9 +2,9 @@ name:                simple-cmd
 version:             0.2.0
 synopsis:            Simple String-based process commands
 description:
-            Thin wrappers over System.Process (readProcess,
-            readProcessWithExitCode, and rawSystem). The idea is to provide
-            some simple common idioms for easy calling out to commands
+            Simple wrappers over System.Process
+            (readProcess, readProcessWithExitCode, rawSystem, and createProcess). 
+            The idea is to provide some common idioms for calling out to commands
             from programs.  For more advanced shell-scripting or streaming
             use turtle, shelly, command, etc.
 license:             BSD3

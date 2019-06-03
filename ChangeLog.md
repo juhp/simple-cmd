@@ -1,10 +1,17 @@
 # Revision history for simple-cmd
 
-## 0.1.4
+## 0.2.0 (2019-06-03)
+- add warning command
+- API change: sudo and sudo_
+- add shellBool
+- add pipe, pipe_, pipeBool, pipeFile_, pipe3
+- quoteCmd uses showCommandForUser
+
+## 0.1.4 (2019-04-08)
 - export error'
 - add cmdLog (deprecates cmdlog)
 
-## 0.1.3.1
+## 0.1.3.1 (2019-03-15)
 - sudo: ignored for root or when no sudo installed
 
 ## 0.1.3 -- 2019-02-20

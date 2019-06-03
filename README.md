@@ -18,6 +18,7 @@ cmd_ :: String -> [String] -> IO ()
 outputs to stdout. For example
 
 ```haskell
+cmd_ "echo" ["Hello"]
 cmd_ "git" ["clone", url]
 ```
 This can shortened to `git_ "clone" [url]`.
@@ -25,15 +26,24 @@ This can shortened to `git_ "clone" [url]`.
 ```haskell
 cmd :: String -> [String] -> IO String
 ```
-returns stdout as a `String`.
+returns stdout as a `String`. eg
+
+```haskell
+date <- cmd "date" []
+```
 
 There are also `cmdBool`, `cmdMaybe`, `cmdList`, `shell`, and others.
+
+Simple pipes are also supported:
+```haskell
+pipe_ ("echo",["hello"]) ("grep",["ello"])
+```
 
 Other examples:
 ```haskell
 gitBranch :: IO String
 grep_ pat file :: IO Bool
-sudo c args :: IO ()
+sudo_ c args :: IO ()
 ```
 
 See the library documentation for more details.
