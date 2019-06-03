@@ -32,7 +32,7 @@ module SimpleCmd (
   cmdIgnoreErr,
   cmdLines,
   cmdMaybe,
-  cmdLog, cmdlog {-TODO: remove for 0.2 -},
+  cmdLog, cmdlog {-TODO: remove for 0.3 -},
   cmdN,
   cmdQuiet,
   cmdSilent,
@@ -156,7 +156,7 @@ cmdLog c args = do
   logMsg $ unwords $ c:args
   cmd_ c args
 
--- | 'cmdlog' deprecated alias for 'cmdLog' (to be removed in 0.2)
+-- | 'cmdlog' deprecated alias for 'cmdLog' (will be removed in 0.3)
 cmdlog :: String -> [String] -> IO ()
 cmdlog = cmdLog
 
