@@ -46,22 +46,26 @@ module SimpleCmd (
   shellBool,
   sudo, sudo_,
   warning,
+  pipe, pipe_, pipeBool,
   (+-+)) where
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
 #else
 import Control.Applicative ((<$>))
 #endif
-import Control.Monad (when)
+import Control.Monad
 
 import Data.List (stripPrefix)
 import Data.Maybe (isNothing, fromMaybe)
 
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
-import System.IO (hPutStrLn, stderr)
+import System.IO (hGetContents, hPutStrLn, stderr)
 import System.Posix.User (getEffectiveUserID)
-import System.Process (readProcess, readProcessWithExitCode, rawSystem)
+import System.Process (createProcess, proc, ProcessHandle, rawSystem, readProcess,
+                       readProcessWithExitCode, runProcess, showCommandForUser,
+                       std_in, std_out, StdStream(CreatePipe, UseHandle),
+                       waitForProcess, withCreateProcess)
 
 removeTrailingNewline :: String -> String
 removeTrailingNewline "" = ""
@@ -279,3 +283,43 @@ removeSuffix suffix orig =
 -- | 'warning' outputs to stderr
 warning :: String -> IO ()
 warning = hPutStrLn stderr
+
+type Command = (String,[String])
+
+-- | Return stdout from piping the output of one process to another
+--
+-- @since 0.2.0
+pipe :: Command -> Command -> IO String
+pipe (c1,args1) (c2,args2) =
+  withCreateProcess ((proc c1 args1) { std_out = CreatePipe }) $
+    \ _si (Just ho1) _se p1 -> do
+      (_, Just ho2, _, p2) <- createProcess ((proc c2 args2) {std_in = UseHandle ho1, std_out = CreatePipe})
+      out <- hGetContents ho2
+      void $ waitForProcess p1
+      void $ waitForProcess p2
+      return out
+
+-- | Pipe two commands without returning anyway
+--
+-- @since 0.2.0
+pipe_ :: Command -> Command -> IO ()
+pipe_ (c1,args1) (c2,args2) =
+  void $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
+
+-- | Bool result of piping of commands
+--
+-- @since 0.2.0
+pipeBool :: Command -> Command -> IO Bool
+pipeBool (c1,args1) (c2,args2) =
+  boolWrapper $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
+
+pipeInternal :: Command -> Command -> IO ProcessHandle
+pipeInternal (c1,args1) (c2,args2) =
+  -- nicer with process-typed:
+  -- withProcess_ (setStdout createPipe proc1) $ \ p -> runProcess (setStdin (useHandleClose (getStdout p)) proc2)
+  withCreateProcess ((proc c1 args1) { std_out = CreatePipe }) $
+    \ _si so _se p1 -> do
+      p2 <- runProcess c2 args2 Nothing Nothing so Nothing Nothing
+      void $ waitForProcess p1
+      return p2
+
