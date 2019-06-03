@@ -77,7 +77,7 @@ removeTrailingNewline str =
   else str
 
 quoteCmd :: String -> [String] -> String
-quoteCmd c args = "'" ++ unwords (c:args) ++ "'"
+quoteCmd = showCommandForUser
 
 -- | Alias for errorWithoutStackTrace (for base >= 4.9)
 --
