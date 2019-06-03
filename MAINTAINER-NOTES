@@ -8,3 +8,4 @@ $ make git-tag
 $ make sdist
 $ make upload
 $ make git-push
+$ make publish

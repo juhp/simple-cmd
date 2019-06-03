@@ -1,5 +1,5 @@
 help:
-	@echo "devel targets: git-tag sdist version git-push upload copy"
+	@echo "devel targets: git-tag sdist version git-push upload copy publish"
 
 sdist:
 	./make-dist $(VERSION)
@@ -22,3 +22,6 @@ git-push:
 
 copy:
 	cp -p dist/$(NAME)-$(VERSION).tar.gz ~/fedora/haskell/ghc-$(NAME)/
+
+publish:
+	cabal upload --publish dist/$(NAME)-$(VERSION).tar.gz
