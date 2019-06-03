@@ -137,7 +137,7 @@ cmdStdIn c args inp = removeTrailingNewline <$> readProcess c args inp
 shell :: String -> IO String
 shell cs = cmd "sh" ["-c", cs]
 
--- | 'shell_ c' runs a command string in a shell, output goes to stdout
+-- | 'shell_ cs' runs a command string in a shell, output goes to stdout
 shell_ :: String -> IO ()
 shell_ cs = cmd_ "sh" ["-c", cs]
 
