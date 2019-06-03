@@ -97,13 +97,17 @@ cmd_ c args = do
     ExitSuccess -> return ()
     ExitFailure n -> error' $ quoteCmd c args +-+ "failed with exit code" +-+ show n
 
--- | 'cmdBool c args' runs a command, and return Boolean status
-cmdBool :: String -> [String] -> IO Bool
-cmdBool c args = do
-  ret <- rawSystem c args
+boolWrapper :: IO ExitCode -> IO Bool
+boolWrapper pr = do
+  ret <- pr
   case ret of
     ExitSuccess -> return True
     ExitFailure _ -> return False
+
+-- | 'cmdBool c args' runs a command, and return Boolean status
+cmdBool :: String -> [String] -> IO Bool
+cmdBool c args =
+  boolWrapper (rawSystem c args)
 
 -- | 'cmdMaybe c args' runs a command, maybe returning output if it succeeds
 cmdMaybe :: String -> [String] -> IO (Maybe String)
@@ -135,11 +139,8 @@ shell_ cs = cmd_ "sh" ["-c", cs]
 --
 -- @since 0.2.0
 shellBool :: String -> IO Bool
-shellBool cs = do
-  ret <- rawSystem "sh" ["-c", cs]
-  case ret of
-    ExitSuccess -> return True
-    ExitFailure _ -> return False
+shellBool cs =
+  boolWrapper (rawSystem "sh" ["-c", cs])
 
 -- | 'cmdLog c args' logs a command with a datestamp
 --
