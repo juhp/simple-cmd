@@ -46,7 +46,9 @@ module SimpleCmd (
   shellBool,
   sudo, sudo_,
   warning,
+  PipeCommand,
   pipe, pipe_, pipeBool,
+  pipe3_, pipeFile_,
   (+-+)) where
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
@@ -60,7 +62,7 @@ import Data.Maybe (isNothing, fromMaybe)
 
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
-import System.IO (hGetContents, hPutStrLn, stderr)
+import System.IO (hGetContents, hPutStrLn, IOMode(ReadMode), stderr, withFile)
 import System.Posix.User (getEffectiveUserID)
 import System.Process (createProcess, proc, ProcessHandle, rawSystem, readProcess,
                        readProcessWithExitCode, runProcess, showCommandForUser,
@@ -281,15 +283,17 @@ removeSuffix suffix orig =
     stripSuffix sf str = reverse <$> stripPrefix (reverse sf) (reverse str)
 
 -- | 'warning' outputs to stderr
+--
+-- @since 0.2.0
 warning :: String -> IO ()
 warning = hPutStrLn stderr
 
-type Command = (String,[String])
+type PipeCommand = (String,[String])
 
 -- | Return stdout from piping the output of one process to another
 --
 -- @since 0.2.0
-pipe :: Command -> Command -> IO String
+pipe :: PipeCommand -> PipeCommand -> IO String
 pipe (c1,args1) (c2,args2) =
   withCreateProcess ((proc c1 args1) { std_out = CreatePipe }) $
     \ _si (Just ho1) _se p1 -> do
@@ -299,21 +303,21 @@ pipe (c1,args1) (c2,args2) =
       void $ waitForProcess p2
       return out
 
--- | Pipe two commands without returning anyway
+-- | Pipe two commands without returning anything
 --
 -- @since 0.2.0
-pipe_ :: Command -> Command -> IO ()
+pipe_ :: PipeCommand -> PipeCommand -> IO ()
 pipe_ (c1,args1) (c2,args2) =
   void $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
 
 -- | Bool result of piping of commands
 --
 -- @since 0.2.0
-pipeBool :: Command -> Command -> IO Bool
+pipeBool :: PipeCommand -> PipeCommand -> IO Bool
 pipeBool (c1,args1) (c2,args2) =
   boolWrapper $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
 
-pipeInternal :: Command -> Command -> IO ProcessHandle
+pipeInternal :: PipeCommand -> PipeCommand -> IO ProcessHandle
 pipeInternal (c1,args1) (c2,args2) =
   -- nicer with process-typed:
   -- withProcess_ (setStdout createPipe proc1) $ \ p -> runProcess (setStdin (useHandleClose (getStdout p)) proc2)
@@ -322,4 +326,31 @@ pipeInternal (c1,args1) (c2,args2) =
       p2 <- runProcess c2 args2 Nothing Nothing so Nothing Nothing
       void $ waitForProcess p1
       return p2
+
+-- | Pipe 3 commands, no returning anything
+--
+-- @since 0.2.0
+pipe3_ :: PipeCommand -> PipeCommand -> PipeCommand -> IO ()
+pipe3_ (c1,a1) (c2,a2) (c3,a3) =
+  withCreateProcess ((proc c1 a1) { std_out = CreatePipe }) $
+  \ _hi1 (Just ho1) _he1 p1 ->
+    withCreateProcess ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
+    \ _hi2 ho2 _he2 p2 -> do
+      p3 <- runProcess c3 a3 Nothing Nothing ho2 Nothing Nothing
+      void $ waitForProcess p1
+      void $ waitForProcess p2
+      void $ waitForProcess p3
+
+-- | Pipe a file to the first of a pipe of commands
+--
+-- @since 0.2.0
+pipeFile_ :: FilePath -> PipeCommand -> PipeCommand -> IO ()
+pipeFile_ infile (c1,a1) (c2,a2) =
+  withFile infile ReadMode $
+  \ hin ->
+    withCreateProcess ((proc c1 a1) { std_in = UseHandle hin, std_out = CreatePipe }) $
+    \ _si so _se p1 -> do
+      p2 <- runProcess c2 a2 Nothing Nothing so Nothing Nothing
+      void $ waitForProcess p1
+      void $ waitForProcess p2
 
