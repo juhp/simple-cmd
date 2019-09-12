@@ -1,4 +1,9 @@
 language: haskell
+
+branches:
+  only:
+  - master
+
 ghc:
 - 8.8.1
 - 8.6.5
