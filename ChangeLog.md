@@ -1,5 +1,8 @@
 # Revision history for simple-cmd
 
+## 0.2.1 (2019-09-13)
+- add cmdTry_
+
 ## 0.2.0 (2019-06-03)
 - add warning command
 - API change: sudo and sudo_

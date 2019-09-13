@@ -38,6 +38,7 @@ module SimpleCmd (
   cmdSilent,
   cmdStdIn,
   cmdStdErr,
+  cmdTry_,
   error',
   egrep_, grep, grep_,
   logMsg,
@@ -58,7 +59,7 @@ import Control.Applicative ((<$>))
 import Control.Monad
 
 import Data.List (stripPrefix)
-import Data.Maybe (isNothing, fromMaybe)
+import Data.Maybe (isJust, isNothing, fromMaybe)
 
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
@@ -205,6 +206,15 @@ cmdIgnoreErr :: String -> [String] -> String -> IO String
 cmdIgnoreErr c args input = do
   (_exit, out, _err) <- readProcessWithExitCode c args input
   return out
+
+-- | 'cmdTry_ c args' runs the command if available
+--
+-- @since 0.2.1
+cmdTry_ :: String -> [String] -> IO ()
+cmdTry_ c args = do
+  have <- findExecutable c
+  when (isJust have) $
+    cmd_ c args
 
 -- | 'grep pat file' greps pattern in file, and returns list of matches
 --
