@@ -4,8 +4,4 @@ Release steps:
 2. update ChangeLog
 2. update README
 
-$ make git-tag
-$ make sdist
-$ make upload
-$ make git-push
-$ make publish
+$ hkgr
