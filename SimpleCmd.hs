@@ -29,7 +29,7 @@ Other examples:
 module SimpleCmd (
   cmd, cmd_,
   cmdBool,
-  cmdIgnoreErr,
+  cmdIgnoreErr, {- badly named -}
   cmdLines,
   cmdMaybe,
   cmdLog, cmdlog {-TODO: remove for 0.3 -},
@@ -41,7 +41,9 @@ module SimpleCmd (
   cmdTry_,
   error',
   egrep_, grep, grep_,
+  ifM,
   logMsg,
+  needProgram,
   removePrefix, removeStrictPrefix, removeSuffix,
   shell, shell_,
   shellBool,
@@ -50,6 +52,7 @@ module SimpleCmd (
   PipeCommand,
   pipe, pipe_, pipeBool,
   pipe3_, pipeFile_,
+  whenM,
   (+-+)) where
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
@@ -364,3 +367,26 @@ pipeFile_ infile (c1,a1) (c2,a2) =
       void $ waitForProcess p1
       void $ waitForProcess p2
 
+-- | Monadic if
+-- @ifM test actTrue actFalse@
+-- (taken from protolude)
+--
+-- @since 0.2.1
+ifM :: Monad m => m Bool -> m a -> m a -> m a
+ifM p x y = p >>= \b -> if b then x else y
+
+-- | Monadic when
+-- @whenM test action@
+--
+-- @since 0.2.1
+whenM :: Monad m => m Bool -> m () -> m ()
+whenM p x = p >>= \b -> when b x
+
+-- | Assert program in PATH
+-- @needProgram progname@
+--
+-- @since 0.2.1
+needProgram :: String -> IO ()
+needProgram prog = do
+  mx <- findExecutable prog
+  unless (isJust mx) $ error' $ "program needs " ++ prog

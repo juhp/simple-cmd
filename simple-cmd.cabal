@@ -28,7 +28,11 @@ library
   exposed-modules:     SimpleCmd,
                        SimpleCmd.Git,
                        SimpleCmd.Rpm
-  build-depends:       base < 5, directory, filepath, process >= 1.4.3.0, unix
+  build-depends:       base < 5,
+                       directory,
+                       filepath,
+                       process >= 1.4.3.0,
+                       unix
   default-language:    Haskell2010
   default-extensions:  CPP
   ghc-options:   -fwarn-missing-signatures -Wall
