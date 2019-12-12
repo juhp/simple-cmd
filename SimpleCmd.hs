@@ -301,6 +301,10 @@ removeSuffix suffix orig =
 warning :: String -> IO ()
 warning = hPutStrLn stderr
 
+
+-- | Type alias for a command in a pipe
+--
+-- @since 0.2.0
 type PipeCommand = (String,[String])
 
 -- | Return stdout from piping the output of one process to another
