@@ -393,4 +393,4 @@ whenM p x = p >>= \b -> when b x
 needProgram :: String -> IO ()
 needProgram prog = do
   mx <- findExecutable prog
-  unless (isJust mx) $ error' $ "program needs " ++ prog
+  unless (isJust mx) $ error' $ "missing program: " ++ prog
