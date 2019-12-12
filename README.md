@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/juhp/simple-cmd.png)](https://travis-ci.org/juhp/simple-cmd)
 [![Hackage](http://img.shields.io/hackage/v/simple-cmd.png)](http://hackage.haskell.org/package/simple-cmd)
+[![Stackage LTS](http://stackage.org/package/simple-cmd/badge/lts)](http://stackage.org/lts/package/simple-cmd)
+[![Stackage Nightly](http://stackage.org/package/simple-cmd/badge/nightly)](http://stackage.org/nightly/package/simple-cmd)
 
 # simple-cmd
 
