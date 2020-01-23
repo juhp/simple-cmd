@@ -5,6 +5,7 @@ Some wrappers for git commands.
 module SimpleCmd.Git (
   git,
   git_,
+  gitBool,
   gitBranch,
   gitDiffQuiet,
   grepGitConfig,
@@ -33,6 +34,13 @@ git c args =
 git_ :: String -> [String] -> IO ()
 git_ c args =
   cmd_ "git" (c:args)
+
+-- | 'gitBool c args' runs git command and return result
+gitBool :: String -- ^ git command
+        -> [String] -- ^ arguments
+        -> IO Bool -- ^ result
+gitBool c args =
+  cmdBool "git" (c:args)
 
 -- | 'isGitDir dir' checks if directory has a .git/ subdir
 isGitDir :: FilePath -> IO Bool
