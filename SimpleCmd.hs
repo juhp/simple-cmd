@@ -39,6 +39,7 @@ module SimpleCmd (
   cmdStdIn,
   cmdStdErr,
   cmdTry_,
+  cmdStderrToStdout,
   error',
   egrep_, grep, grep_,
   ifM,
@@ -52,7 +53,6 @@ module SimpleCmd (
   PipeCommand,
   pipe, pipe_, pipeBool,
   pipe3_, pipeFile_,
-  cmdStderrToStdout,
   whenM,
   (+-+)) where
 
@@ -222,6 +222,17 @@ cmdTry_ c args = do
   when (isJust have) $
     cmd_ c args
 
+-- | Redirect stderr to stdout, ie with interleaved output
+--
+-- @since 0.2.2
+cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
+cmdStderrToStdout c args = do
+  (_, Just hout, _, p) <- createProcess ((proc c args) {std_out = CreatePipe,
+                                                      std_err = UseHandle stdout})
+  ret <- waitForProcess p
+  out <- hGetContents hout
+  return (ret,out)
+
 -- | 'grep pat file' greps pattern in file, and returns list of matches
 --
 -- @since 0.1.2 (fixed not to error in 0.2.2)
@@ -374,15 +385,6 @@ pipeFile_ infile (c1,a1) (c2,a2) =
       p2 <- runProcess c2 a2 Nothing Nothing so Nothing Nothing
       void $ waitForProcess p1
       void $ waitForProcess p2
-
--- | Redirect stderr to stdout, ie with interleaved output
-cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
-cmdStderrToStdout c args = do
-  (_, Just hout, _, p) <- createProcess ((proc c args) {std_out = CreatePipe,
-                                                      std_err = UseHandle stdout})
-  ret <- waitForProcess p
-  out <- hGetContents hout
-  return (ret,out)
 
 -- | Assert program in PATH
 --
