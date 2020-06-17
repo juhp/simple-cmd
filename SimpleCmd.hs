@@ -52,6 +52,7 @@ module SimpleCmd (
   PipeCommand,
   pipe, pipe_, pipeBool,
   pipe3_, pipeFile_,
+  cmdStderrToStdout,
   whenM,
   (+-+)) where
 
@@ -66,11 +67,12 @@ import Data.Maybe (isJust, isNothing, fromMaybe)
 
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
-import System.IO (hGetContents, hPutStrLn, IOMode(ReadMode), stderr, withFile)
+import System.IO (hGetContents, hPutStrLn, IOMode(ReadMode), stderr, stdout,
+                  withFile)
 import System.Posix.User (getEffectiveUserID)
 import System.Process (createProcess, proc, ProcessHandle, rawSystem, readProcess,
                        readProcessWithExitCode, runProcess, showCommandForUser,
-                       std_in, std_out, StdStream(CreatePipe, UseHandle),
+                       std_err, std_in, std_out, StdStream(CreatePipe, UseHandle),
                        waitForProcess, withCreateProcess)
 
 removeTrailingNewline :: String -> String
@@ -386,6 +388,14 @@ ifM p x y = p >>= \b -> if b then x else y
 -- @since 0.2.1
 whenM :: Monad m => m Bool -> m () -> m ()
 whenM p x = p >>= \b -> when b x
+-- | Redirect stderr to stdout, ie with interleaved output
+cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
+cmdStderrToStdout c args = do
+  (_, Just hout, _, p) <- createProcess ((proc c args) {std_out = CreatePipe,
+                                                      std_err = UseHandle stdout})
+  ret <- waitForProcess p
+  out <- hGetContents hout
+  return (ret,out)
 
 -- | Assert program in PATH
 -- @needProgram progname@

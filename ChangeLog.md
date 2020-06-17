@@ -2,6 +2,7 @@
 
 ## 0.2.2 (2020-06-17)
 - grep: no longer errors for no match
+- add cmdStderrToStdout: redirects stderr to stdout
 
 ## 0.2.1 (2019-12-12)
 - add cmdTry_: only runs if available
