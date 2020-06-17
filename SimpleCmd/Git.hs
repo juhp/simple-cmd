@@ -12,11 +12,10 @@ module SimpleCmd.Git (
   isGitDir,
   rwGitDir) where
 
-import Data.List (isPrefixOf)
 import System.Directory (doesDirectoryExist)
 import System.FilePath ((</>))
 
-import SimpleCmd (cmd, cmd_, cmdBool, cmdLines, egrep_, removePrefix)
+import SimpleCmd (cmd, cmd_, cmdBool, egrep_)
 
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
 #else
@@ -49,7 +48,7 @@ isGitDir dir = doesDirectoryExist (dir </> ".git")
 -- | 'gitBranch' returns the git branch of the current directory
 gitBranch :: IO String
 gitBranch =
-  removePrefix "* " . head . filter (isPrefixOf "* ") <$> cmdLines "git" ["branch"]
+  git "rev-parse" ["--abbrev-ref", "HEAD"]
 
 -- | 'rwGitDir' checks if a git repo is under ssh
 rwGitDir :: IO Bool
