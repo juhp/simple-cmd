@@ -154,6 +154,7 @@ shellBool :: String -> IO Bool
 shellBool cs =
   boolWrapper (rawSystem "sh" ["-c", cs])
 
+-- FIXME cmdLog_
 -- | 'cmdLog c args' logs a command with a datestamp
 --
 -- @since 0.1.4
@@ -209,7 +210,7 @@ cmdSilent c args = do
 -- | 'cmdIgnoreErr c args inp' runs a command with input, drops stderr, and return stdout
 cmdIgnoreErr :: String -> [String] -> String -> IO String
 cmdIgnoreErr c args input = do
-  (_exit, out, _err) <- readProcessWithExitCode c args input
+  (_ret, out, _err) <- readProcessWithExitCode c args input
   return out
 
 -- | 'cmdTry_ c args' runs the command if available
@@ -384,6 +385,7 @@ cmdStderrToStdout c args = do
   return (ret,out)
 
 -- | Assert program in PATH
+--
 -- @needProgram progname@
 --
 -- @since 0.2.1
