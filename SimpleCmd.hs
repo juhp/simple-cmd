@@ -221,10 +221,11 @@ cmdTry_ c args = do
 
 -- | 'grep pat file' greps pattern in file, and returns list of matches
 --
--- @since 0.1.2
+-- @since 0.1.2 (fixed not to error in 0.2.2)
 grep :: String -> FilePath -> IO [String]
-grep pat file =
-  cmdLines "grep" [pat, file]
+grep pat file = do
+  mres <- cmdMaybe "grep" [pat, file]
+  return $ maybe [] lines mres
 
 -- | 'grep_ pat file' greps pattern in file and returns Boolean status
 grep_ :: String -- ^ pattern
