@@ -30,6 +30,7 @@ library
                        SimpleCmd.Rpm
   build-depends:       base < 5,
                        directory,
+                       extra,
                        filepath,
                        process >= 1.4.3.0,
                        unix

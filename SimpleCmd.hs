@@ -60,7 +60,7 @@ module SimpleCmd (
 #else
 import Control.Applicative ((<$>))
 #endif
-import Control.Monad
+import Control.Monad.Extra
 
 import Data.List (stripPrefix)
 import Data.Maybe (isJust, isNothing, fromMaybe)
@@ -374,20 +374,6 @@ pipeFile_ infile (c1,a1) (c2,a2) =
       void $ waitForProcess p1
       void $ waitForProcess p2
 
--- | Monadic if
--- @ifM test actTrue actFalse@
--- (taken from protolude)
---
--- @since 0.2.1
-ifM :: Monad m => m Bool -> m a -> m a -> m a
-ifM p x y = p >>= \b -> if b then x else y
-
--- | Monadic when
--- @whenM test action@
---
--- @since 0.2.1
-whenM :: Monad m => m Bool -> m () -> m ()
-whenM p x = p >>= \b -> when b x
 -- | Redirect stderr to stdout, ie with interleaved output
 cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
 cmdStderrToStdout c args = do
