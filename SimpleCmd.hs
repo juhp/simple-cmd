@@ -52,7 +52,7 @@ module SimpleCmd (
   warning,
   PipeCommand,
   pipe, pipe_, pipeBool,
-  pipe3_, pipeFile_,
+  pipe3, pipe3_, pipeFile_,
   whenM,
   (+-+)) where
 
@@ -359,7 +359,23 @@ pipeInternal (c1,args1) (c2,args2) =
       void $ waitForProcess p1
       return p2
 
--- | Pipe 3 commands, no returning anything
+-- | Pipe 3 commands, returning stdout
+--
+-- @since 0.2.3
+pipe3 :: PipeCommand -> PipeCommand -> PipeCommand -> IO String
+pipe3 (c1,a1) (c2,a2) (c3,a3) =
+  withCreateProcess ((proc c1 a1) { std_out = CreatePipe }) $
+  \ _hi1 (Just ho1) _he1 p1 ->
+    withCreateProcess ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
+    \ _hi2 (Just ho2) _he2 p2 -> do
+      (_, Just ho3, _, p3) <- createProcess ((proc c3 a3) {std_in = UseHandle ho2, std_out = CreatePipe})
+      out <- hGetContents ho3
+      void $ waitForProcess p1
+      void $ waitForProcess p2
+      void $ waitForProcess p3
+      return out
+
+-- | Pipe 3 commands, not returning anything
 --
 -- @since 0.2.0
 pipe3_ :: PipeCommand -> PipeCommand -> PipeCommand -> IO ()
