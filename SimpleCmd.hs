@@ -196,7 +196,7 @@ cmdQuiet :: String -> [String] -> IO String
 cmdQuiet c args = do
   (ret, out, err) <- readProcessWithExitCode c args ""
   case ret of
-    ExitSuccess -> return $removeTrailingNewline out
+    ExitSuccess -> return $ removeTrailingNewline out
     ExitFailure n -> error' $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
 
 -- | @cmdSilent c args@ runs a command hiding stdout: stderr is only output if it fails.
@@ -211,7 +211,7 @@ cmdSilent c args = do
 cmdIgnoreErr :: String -> [String] -> String -> IO String
 cmdIgnoreErr c args input = do
   (_ret, out, _err) <- readProcessWithExitCode c args input
-  return out
+  return $ removeTrailingNewline out
 
 -- | @cmdTry_ c args@ runs the command if available
 --
@@ -231,7 +231,7 @@ cmdStderrToStdout c args = do
                                                       std_err = UseHandle stdout})
   ret <- waitForProcess p
   out <- hGetContents hout
-  return (ret,out)
+  return (ret, removeTrailingNewline out)
 
 -- | @grep pat file@ greps pattern in file, and returns list of matches
 --
@@ -333,7 +333,7 @@ pipe (c1,args1) (c2,args2) =
       out <- hGetContents ho2
       void $ waitForProcess p1
       void $ waitForProcess p2
-      return out
+      return $ removeTrailingNewline out
 
 -- | Pipe two commands without returning anything
 --
@@ -373,7 +373,7 @@ pipe3 (c1,a1) (c2,a2) (c3,a3) =
       void $ waitForProcess p1
       void $ waitForProcess p2
       void $ waitForProcess p3
-      return out
+      return $ removeTrailingNewline out
 
 -- | Pipe 3 commands, not returning anything
 --
