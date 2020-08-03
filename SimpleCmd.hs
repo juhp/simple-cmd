@@ -41,6 +41,7 @@ module SimpleCmd (
   cmdStdErr,
   cmdTry_,
   cmdStderrToStdout,
+  cmdStderrToStdoutIn,
   error',
   egrep_, grep, grep_,
   ifM,
@@ -68,8 +69,8 @@ import Data.Maybe (isJust, isNothing, fromMaybe)
 
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (..))
-import System.IO (hGetContents, hPutStrLn, IOMode(ReadMode), stderr, stdout,
-                  withFile)
+import System.IO (hGetContents, hPutStr, hPutStrLn, IOMode(ReadMode),
+                  stderr, stdout, withFile)
 import System.Posix.User (getEffectiveUserID)
 import System.Process (createProcess, proc, ProcessHandle, rawSystem, readProcess,
                        readProcessWithExitCode, runProcess, showCommandForUser,
@@ -239,11 +240,26 @@ cmdTry_ c args = do
 -- @since 0.2.2
 cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
 cmdStderrToStdout c args = do
-  (_, Just hout, _, p) <- createProcess ((proc c args) {std_out = CreatePipe,
-                                                      std_err = UseHandle stdout})
+  (_ , Just hout, _, p) <- createProcess ((proc c args)
+                                          {std_in  = CreatePipe,
+                                           std_out = CreatePipe,
+                                           std_err = UseHandle stdout})
   ret <- waitForProcess p
   out <- hGetContents hout
   return (ret, removeTrailingNewline out)
+
+-- | Redirect stderr to stdout, ie with interleaved output
+--
+-- @since 0.2.3
+cmdStderrToStdoutIn :: String -> [String] -> String -> IO (Bool, String)
+cmdStderrToStdoutIn c args inp = do
+  (Just hin, Just hout, _, p) <- createProcess ((proc c args)
+                                          {std_out = CreatePipe,
+                                           std_err = UseHandle stdout})
+  hPutStr hin inp
+  ret <- waitForProcess p
+  out <- hGetContents hout
+  return (ret == ExitSuccess, removeTrailingNewline out)
 
 -- | @grep pat file@ greps pattern in file, and returns list of matches
 --
