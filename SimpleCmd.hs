@@ -241,8 +241,7 @@ cmdTry_ c args = do
 cmdStderrToStdout :: String -> [String] -> IO (ExitCode, String)
 cmdStderrToStdout c args = do
   (_ , Just hout, _, p) <- createProcess ((proc c args)
-                                          {std_in  = CreatePipe,
-                                           std_out = CreatePipe,
+                                          {std_out = CreatePipe,
                                            std_err = UseHandle stdout})
   ret <- waitForProcess p
   out <- hGetContents hout
@@ -254,7 +253,8 @@ cmdStderrToStdout c args = do
 cmdStderrToStdoutIn :: String -> [String] -> String -> IO (Bool, String)
 cmdStderrToStdoutIn c args inp = do
   (Just hin, Just hout, _, p) <- createProcess ((proc c args)
-                                          {std_out = CreatePipe,
+                                          {std_in  = CreatePipe,
+                                           std_out = CreatePipe,
                                            std_err = UseHandle stdout})
   hPutStr hin inp
   ret <- waitForProcess p
