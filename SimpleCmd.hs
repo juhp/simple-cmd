@@ -32,6 +32,7 @@ module SimpleCmd (
   cmdIgnoreErr, {- badly named -}
   cmdLines,
   cmdMaybe,
+  cmdFull,
   cmdLog, cmdlog {-TODO: remove for 0.3 -},
   cmdN,
   cmdQuiet,
@@ -124,10 +125,8 @@ cmdBool c args =
 -- | @cmdMaybe c args@ runs a command, maybe returning output if it succeeds
 cmdMaybe :: String -> [String] -> IO (Maybe String)
 cmdMaybe c args = do
-  (ret, out, _err) <- readProcessWithExitCode c args ""
-  case ret of
-    ExitSuccess -> return $ Just $ removeTrailingNewline out
-    ExitFailure _ -> return Nothing
+  (ok, out, _err) <- cmdFull c args ""
+  return $ if ok then Just out else Nothing
 
 -- | @cmdLines c args@ runs a command, and returns list of stdout lines
 --
@@ -180,8 +179,8 @@ cmdN c args = putStrLn $ unwords $ c:args
 -- | @cmdStdErr c args@ runs command in a process, returning stdout and stderr
 cmdStdErr :: String -> [String] -> IO (String, String)
 cmdStdErr c args = do
-  (_ret, out, err) <- readProcessWithExitCode c args ""
-  return (removeTrailingNewline out, removeTrailingNewline err)
+  (_ok, out, err) <- cmdFull c args ""
+  return (out, err)
 
 -- -- | @cmdAssert msg c args@ runs command, if it fails output msg as error'.
 -- cmdAssert :: String -> String -> [String] -> IO ()
@@ -194,24 +193,37 @@ cmdStdErr c args = do
 -- | @cmdQuiet c args@ runs a command hiding stderr, if it succeeds returns stdout
 cmdQuiet :: String -> [String] -> IO String
 cmdQuiet c args = do
-  (ret, out, err) <- readProcessWithExitCode c args ""
-  case ret of
-    ExitSuccess -> return $ removeTrailingNewline out
-    ExitFailure n -> error' $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
+  (ok, out, err) <- cmdFull c args ""
+  return $ if ok
+    then out
+    else error' $ quoteCmd c args +-+ "failed with\n" ++ err
 
 -- | @cmdSilent c args@ runs a command hiding stdout: stderr is only output if it fails.
 cmdSilent :: String -> [String] -> IO ()
 cmdSilent c args = do
-  (ret, _, err) <- readProcessWithExitCode c args ""
-  case ret of
-    ExitSuccess -> return ()
-    ExitFailure n -> error' $ quoteCmd c args +-+ "failed with status" +-+ show n ++ "\n" ++ err
+  (ret, _, err) <- cmdFull c args ""
+  unless ret $
+    error' $ quoteCmd c args +-+ "failed with\n" ++ err
+
+-- -- | @cmdSilentIn c args inp@ is like @cmdSilent@ but additionally takes some stdin
+-- cmdSilentIn :: String -> [String] -> String -> IO ()
+-- cmdSilentIn c args inp = do
+--   (ret, _, err) <- cmdFull c args inp
+--   unless ret $
+--     error' $ quoteCmd c args +-+ "failed with:\n" ++ err
 
 -- | @cmdIgnoreErr c args inp@ runs a command with input, drops stderr, and return stdout
 cmdIgnoreErr :: String -> [String] -> String -> IO String
 cmdIgnoreErr c args input = do
-  (_ret, out, _err) <- readProcessWithExitCode c args input
-  return $ removeTrailingNewline out
+  (_ret, out, _err) <- cmdFull c args input
+  return out
+
+-- | @cmdFull c args inp@ runs readProcessWithExitCode and converts the ExitCode to Bool
+-- Removes the last newline from stdout and stderr (like the other functions)
+cmdFull :: String -> [String] -> String -> IO (Bool, String, String)
+cmdFull c args input = do
+  (ret, out, err) <- readProcessWithExitCode c args input
+  return (ret == ExitSuccess, removeTrailingNewline out, removeTrailingNewline err)
 
 -- | @cmdTry_ c args@ runs the command if available
 --
