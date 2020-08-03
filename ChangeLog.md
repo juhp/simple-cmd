@@ -1,4 +1,10 @@
-# Revision history for simple-cmd
+# Version history for simple-cmd
+
+## 0.2.3 (2020-12-20)
+- most commands now use removeTrailingNewline
+- cmdFull: wrapper of readProcessWithExitCode
+- cmdStderrToStdoutIn: like cmdStderrToStdout but reads a String
+- pipe3 connects 3 commands
 
 ## 0.2.2 (2020-06-17)
 - grep: no longer errors for no match
