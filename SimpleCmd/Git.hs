@@ -35,6 +35,8 @@ git_ c args =
   cmd_ "git" (c:args)
 
 -- | @gitBool c args@ runs git command and return result
+--
+-- @since 0.2.2
 gitBool :: String -- ^ git command
         -> [String] -- ^ arguments
         -> IO Bool -- ^ result
