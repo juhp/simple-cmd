@@ -398,8 +398,7 @@ pipe3 (c1,a1) (c2,a2) (c3,a3) =
     \ _hi2 (Just ho2) _he2 p2 -> do
       (_, Just ho3, _, p3) <- createProcess ((proc c3 a3) {std_in = UseHandle ho2, std_out = CreatePipe})
       out <- hGetContents ho3
-      forM_ [p1,p2,p3] $
-        void . waitForProcess
+      forM_ [p1,p2,p3] waitForProcess
       return $ removeTrailingNewline out
 
 -- | Pipe 3 commands, not returning anything
@@ -412,8 +411,7 @@ pipe3_ (c1,a1) (c2,a2) (c3,a3) =
     withCreateProcess ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
     \ _hi2 ho2 _he2 p2 -> do
       p3 <- runProcess c3 a3 Nothing Nothing ho2 Nothing Nothing
-      forM_ [p1,p2,p3] $
-        void . waitForProcess
+      forM_ [p1,p2,p3] waitForProcess
 
 -- | Pipe a file to the first of a pipe of commands
 --
