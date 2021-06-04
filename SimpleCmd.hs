@@ -342,7 +342,7 @@ removeSuffix suffix orig =
 --
 -- @since 0.2.0
 warning :: String -> IO ()
-warning = hPutStrLn stderr
+warning s = hPutStrLn stderr $! s
 
 
 -- | Type alias for a command in a pipe
