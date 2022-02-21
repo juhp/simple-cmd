@@ -72,7 +72,7 @@ import System.Exit (ExitCode (..))
 import System.IO (hGetContents, hPutStr, hPutStrLn, IOMode(ReadMode),
                   stderr, stdout, withFile)
 import System.Posix.User (getEffectiveUserID)
-import System.Process (createProcess, proc, ProcessHandle, rawSystem, readProcess,
+import System.Process (createProcess, proc, rawSystem, readProcess,
                        readProcessWithExitCode, runProcess, showCommandForUser,
                        std_err, std_in, std_out, StdStream(CreatePipe, UseHandle),
                        waitForProcess, withCreateProcess)
@@ -368,24 +368,21 @@ pipe (c1,args1) (c2,args2) =
 -- @since 0.2.0
 pipe_ :: PipeCommand -> PipeCommand -> IO ()
 pipe_ (c1,args1) (c2,args2) =
-  void $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
+  void $ pipeBool (c1,args1) (c2,args2)
 
 -- | Bool result of piping of commands
---
+-- Returns False if either command fails.
 -- @since 0.2.0
 pipeBool :: PipeCommand -> PipeCommand -> IO Bool
 pipeBool (c1,args1) (c2,args2) =
-  boolWrapper $ pipeInternal (c1,args1) (c2,args2) >>= waitForProcess
-
-pipeInternal :: PipeCommand -> PipeCommand -> IO ProcessHandle
-pipeInternal (c1,args1) (c2,args2) =
   -- nicer with process-typed:
   -- withProcess_ (setStdout createPipe proc1) $ \ p -> runProcess (setStdin (useHandleClose (getStdout p)) proc2)
   withCreateProcess ((proc c1 args1) { std_out = CreatePipe }) $
     \ _si so _se p1 -> do
       p2 <- runProcess c2 args2 Nothing Nothing so Nothing Nothing
-      void $ waitForProcess p1
-      return p2
+      ok1 <- boolWrapper $ waitForProcess p1
+      ok2 <- boolWrapper $ waitForProcess p2
+      return $ ok1 && ok2
 
 -- | Pipe 3 commands, returning stdout
 --
