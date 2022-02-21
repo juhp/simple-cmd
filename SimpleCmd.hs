@@ -92,9 +92,9 @@ quoteCmd = showCommandForUser
 -- @since 0.1.4
 error' :: String -> a
 #if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,9,0))
-error' = errorWithoutStackTrace
+error' s = errorWithoutStackTrace $! s
 #else
-error' = error
+error' s = error $! s
 #endif
 
 -- | @cmd c args@ runs a command in a process and returns stdout
