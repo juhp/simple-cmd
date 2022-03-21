@@ -79,11 +79,14 @@ import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
 import System.FilePath
 import System.IO (hGetContents, hPutStr, hPutStrLn, IOMode(ReadMode),
-                  stderr, stdout, withFile)
+                  stderr, stdout, withFile, Handle)
 import System.Posix.User (getEffectiveUserID)
-import System.Process (createProcess, proc, rawSystem, readProcess,
+import System.Process (createProcess, CreateProcess (cmdspec), proc,
+                       ProcessHandle,
+                       rawSystem, readProcess,
                        readProcessWithExitCode, runProcess, showCommandForUser,
-                       std_err, std_in, std_out, StdStream(CreatePipe, UseHandle),
+                       std_err, std_in, std_out,
+                       StdStream(CreatePipe, UseHandle),
                        waitForProcess, withCreateProcess)
 
 removeTrailingNewline :: String -> String
@@ -359,18 +362,29 @@ warning s = hPutStrLn stderr $! s
 -- @since 0.2.0
 type PipeCommand = (String,[String])
 
+withCreateProcessOutput :: CreateProcess -> (Handle  -> ProcessHandle -> IO a) -> IO a
+withCreateProcessOutput p act =
+  withCreateProcess p $
+    \ _si mso _se p' ->
+      case mso of
+        Nothing -> error $ "no stdout handle for: " ++ show (cmdspec p)
+        Just so -> act so p'
+
 -- | Return stdout from piping the output of one process to another
 --
 -- @since 0.2.0
 pipe :: PipeCommand -> PipeCommand -> IO String
 pipe (c1,args1) (c2,args2) =
-  withCreateProcess ((proc c1 args1) { std_out = CreatePipe }) $
-    \ _si (Just ho1) _se p1 -> do
-      (_, Just ho2, _, p2) <- createProcess ((proc c2 args2) {std_in = UseHandle ho1, std_out = CreatePipe})
-      out <- hGetContents ho2
-      void $ waitForProcess p1
-      void $ waitForProcess p2
-      return $ removeTrailingNewline out
+  withCreateProcessOutput ((proc c1 args1) { std_out = CreatePipe }) $
+    \ ho1 p1 -> do
+      (_, mho2, _, p2) <- createProcess ((proc c2 args2) {std_in = UseHandle ho1, std_out = CreatePipe})
+      case mho2 of
+        Nothing -> error $ "no stdout handle for: " ++ c2
+        Just ho2 -> do
+          out <- hGetContents ho2
+          void $ waitForProcess p1
+          void $ waitForProcess p2
+          return $ removeTrailingNewline out
 
 -- | Pipe two commands without returning anything
 --
@@ -398,10 +412,10 @@ pipeBool (c1,args1) (c2,args2) =
 -- @since 0.2.3
 pipe3 :: PipeCommand -> PipeCommand -> PipeCommand -> IO String
 pipe3 (c1,a1) (c2,a2) (c3,a3) =
-  withCreateProcess ((proc c1 a1) { std_out = CreatePipe }) $
-  \ _hi1 (Just ho1) _he1 p1 ->
-    withCreateProcess ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
-    \ _hi2 (Just ho2) _he2 p2 -> do
+  withCreateProcessOutput ((proc c1 a1) { std_out = CreatePipe }) $
+  \ ho1 p1 ->
+    withCreateProcessOutput ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
+    \ ho2 p2 -> do
       (_, Just ho3, _, p3) <- createProcess ((proc c3 a3) {std_in = UseHandle ho2, std_out = CreatePipe})
       out <- hGetContents ho3
       forM_ [p1,p2,p3] waitForProcess
@@ -412,11 +426,11 @@ pipe3 (c1,a1) (c2,a2) (c3,a3) =
 -- @since 0.2.0
 pipe3_ :: PipeCommand -> PipeCommand -> PipeCommand -> IO ()
 pipe3_ (c1,a1) (c2,a2) (c3,a3) =
-  withCreateProcess ((proc c1 a1) { std_out = CreatePipe }) $
-  \ _hi1 (Just ho1) _he1 p1 ->
+  withCreateProcessOutput ((proc c1 a1) { std_out = CreatePipe }) $
+  \ ho1 p1 ->
     withCreateProcess ((proc c2 a2) {std_in = UseHandle ho1, std_out = CreatePipe}) $
-    \ _hi2 ho2 _he2 p2 -> do
-      p3 <- runProcess c3 a3 Nothing Nothing ho2 Nothing Nothing
+    \ _hi2 mho2 _he2 p2 -> do
+      p3 <- runProcess c3 a3 Nothing Nothing mho2 Nothing Nothing
       forM_ [p1,p2,p3] waitForProcess
 
 -- | Pipe a file to the first of a pipe of commands
