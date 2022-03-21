@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 {-|
 Some simple String wrappers of `readProcess`, `readProcessWithExitCode`,
 `rawSystem` from the Haskell <https://hackage.haskell.org/package/process process> library.
@@ -56,19 +58,26 @@ module SimpleCmd (
   pipe, pipe_, pipeBool,
   pipe3, pipe3_, pipeFile_,
   whenM,
-  (+-+)) where
+  (+-+),
+  filesWithExtension,
+  fileWithExtension
+  ) where
 
-#if (defined(MIN_VERSION_base) && MIN_VERSION_base(4,8,0))
-#else
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>))
 #endif
 import Control.Monad.Extra
 
-import Data.List (stripPrefix)
+import Data.List (
+#if !MIN_VERSION_filepath(1,4,2)
+  isSuffixOf,
+#endif
+  stripPrefix)
 import Data.Maybe (isJust, isNothing, fromMaybe)
 
-import System.Directory (findExecutable)
+import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
+import System.FilePath
 import System.IO (hGetContents, hPutStr, hPutStrLn, IOMode(ReadMode),
                   stderr, stdout, withFile)
 import System.Posix.User (getEffectiveUserID)
@@ -432,3 +441,28 @@ needProgram :: String -> IO ()
 needProgram prog = do
   mx <- findExecutable prog
   unless (isJust mx) $ error' $ "missing program: " ++ prog
+
+-- FIXME handle empty extension?
+-- | returns the files with the give extension
+filesWithExtension :: FilePath -- directory
+                   -> String   -- file extension
+                   -> IO [FilePath]
+filesWithExtension dir ext =
+  filter (ext `isExtensionOf`) <$> listDirectory dir
+
+-- looks in dir for a unique file with given extension
+fileWithExtension :: FilePath -- directory
+                  -> String   -- file extension
+                  -> IO (Maybe FilePath)
+fileWithExtension dir ext = do
+  files <- filesWithExtension dir ext
+  case files of
+       [file] -> return $ Just $ dir </> file
+       [] -> return Nothing
+       _ -> putStrLn ("More than one " ++ ext ++ " file found!") >> return Nothing
+
+#if !MIN_VERSION_filepath(1,4,2)
+isExtensionOf :: String -> FilePath -> Bool
+isExtensionOf ext@('.':_) = isSuffixOf ext . takeExtensions
+isExtensionOf ext         = isSuffixOf ('.':ext) . takeExtensions
+#endif
