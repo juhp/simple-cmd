@@ -1,5 +1,11 @@
 # Version history for simple-cmd
 
+## 0.2.4 (2022-03-27)
+- error' and warning are now strict
+- pipeBool: return False if either end fails
+- add filesWithExtension and fileWithExtension
+- initial basic testsuite
+
 ## 0.2.3 (2020-12-20)
 - most commands now use removeTrailingNewline
 - cmdFull: wrapper of readProcessWithExitCode
