@@ -30,6 +30,7 @@ library
   exposed-modules:     SimpleCmd,
                        SimpleCmd.Git,
                        SimpleCmd.Rpm
+  hs-source-dirs:      src
   build-depends:       base < 5,
                        directory,
                        extra,
