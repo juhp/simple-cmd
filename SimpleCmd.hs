@@ -394,8 +394,8 @@ pipe_ (c1,args1) (c2,args2) =
   void $ pipeBool (c1,args1) (c2,args2)
 
 -- | Bool result of piping of commands
--- Returns False if either command fails.
 -- @since 0.2.0
+-- Returns False if either command fails (since 0.2.4).
 pipeBool :: PipeCommand -> PipeCommand -> IO Bool
 pipeBool (c1,args1) (c2,args2) =
   -- nicer with process-typed:
