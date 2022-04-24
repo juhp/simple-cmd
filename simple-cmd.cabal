@@ -32,7 +32,7 @@ library
                        SimpleCmd.Rpm
   hs-source-dirs:      src
   build-depends:       base < 5,
-                       directory,
+                       directory >= 1.2.5.0,
                        extra,
                        filepath,
                        process >= 1.4.3.0,
