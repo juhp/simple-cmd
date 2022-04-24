@@ -30,3 +30,7 @@ spec = do
     it "pipe" $ do
       out <- pipe ("echo", ["hello"]) ("grep",["hello"])
       out `shouldBe` "hello"
+
+  describe "timeIO" $ do
+    it "sleep" $
+      timeIO $ cmd_ "sleep" ["1"]

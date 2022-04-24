@@ -60,12 +60,14 @@ module SimpleCmd (
   ifM,
   whenM,
   filesWithExtension,
-  fileWithExtension
+  fileWithExtension,
+  timeIO
   ) where
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>))
 #endif
+import Control.Exception
 import Control.Monad.Extra
 
 import Data.List (
@@ -74,6 +76,7 @@ import Data.List (
 #endif
   stripPrefix)
 import Data.Maybe (isJust, isNothing, fromMaybe)
+import Data.Time.Clock
 
 import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
@@ -480,3 +483,14 @@ isExtensionOf :: String -> FilePath -> Bool
 isExtensionOf ext@('.':_) = isSuffixOf ext . takeExtensions
 isExtensionOf ext         = isSuffixOf ('.':ext) . takeExtensions
 #endif
+
+-- | Run an IO action and then print how long it took
+timeIO :: IO a -> IO a
+timeIO action = do
+  bracket
+    getCurrentTime
+    (\start -> do
+        end <- getCurrentTime
+        let duration = diffUTCTime end start
+        putStrLn $ "took " ++ show duration)
+    (const action)
