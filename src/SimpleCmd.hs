@@ -187,7 +187,7 @@ logMsg msg = do
 
 -- | @cmdN c args@ dry-runs a command: prints command to stdout - more used for debugging
 cmdN :: String -> [String] -> IO ()
-cmdN c args = putStrLn $ unwords $ c:args
+cmdN c args = putStrLn $ unwords $ c : map show args
 
 -- | @cmdStdErr c args@ runs command in a process, returning stdout and stderr
 cmdStdErr :: String -> [String] -> IO (String, String)

@@ -23,6 +23,9 @@ spec = do
       out <- cmdLines "echo" ["1\n2"]
       out `shouldBe` ["1","2"]
 
+    it "cmdN" $
+      cmdN "ls" ["*"]
+
   describe "pipes" $ do
     it "pipe" $ do
       out <- pipe ("echo", ["hello"]) ("grep",["hello"])
