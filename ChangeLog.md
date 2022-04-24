@@ -1,5 +1,9 @@
 # Version history for simple-cmd
 
+## 0.2.5 (2022-04-24)
+- cmdN: quote arguments with show
+- add timeIO: runs action and prints the time it took
+
 ## 0.2.4 (2022-03-27)
 - error' and warning are now strict
 - pipeBool: return False if either end fails
