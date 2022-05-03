@@ -77,7 +77,9 @@ import Data.List (
   stripPrefix)
 import Data.Maybe (isJust, isNothing, fromMaybe)
 import Data.Time.Clock
-
+#if MIN_VERSION_time(1,9,0)
+import Data.Time.Format (formatTime, defaultTimeLocale)
+#endif
 import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
 import System.FilePath
@@ -492,5 +494,16 @@ timeIO action = do
     (\start -> do
         end <- getCurrentTime
         let duration = diffUTCTime end start
-        putStrLn $ "took " ++ show duration)
+        putStrLn $ "took " ++ renderDuration duration)
     (const action)
+  where
+#if MIN_VERSION_time(1,9,0)
+    renderDuration dur =
+      let fmtstr
+            | dur < 60 = "%s sec"
+            | dur < 3600 = "%m min %S sec"
+            | otherwise = "%h hours %M min"
+      in formatTime defaultTimeLocale fmtstr dur
+#else
+    renderDuration = show
+#endif
