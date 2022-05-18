@@ -1,3 +1,4 @@
 resolver: lts-6.35
 extra-deps:
   - process-1.4.3.0
+  - directory-1.2.5.0
