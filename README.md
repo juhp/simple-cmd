@@ -46,6 +46,7 @@ Other examples:
 gitBranch :: IO String
 grep_ pat file :: IO Bool
 sudo_ c args :: IO ()
+timeIO :: IO a -> IO a
 ```
 
 See the library documentation for more details.
