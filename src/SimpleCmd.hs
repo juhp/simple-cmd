@@ -53,7 +53,9 @@ module SimpleCmd (
   egrep_, grep, grep_,
   shell, shell_,
   shellBool,
+#ifndef mingw32_HOST_OS
   sudo, sudo_,
+#endif
   PipeCommand,
   pipe, pipe_, pipeBool,
   pipe3, pipe3_, pipeFile_,
@@ -85,7 +87,9 @@ import System.Exit (ExitCode (..))
 import System.FilePath
 import System.IO (hGetContents, hPutStr, hPutStrLn, IOMode(ReadMode),
                   stderr, stdout, withFile, Handle)
+#ifndef mingw32_HOST_OS
 import System.Posix.User (getEffectiveUserID)
+#endif
 import System.Process (createProcess, CreateProcess (cmdspec), proc,
                        ProcessHandle,
                        rawSystem, readProcess,
@@ -298,6 +302,7 @@ egrep_ :: String -> FilePath -> IO Bool
 egrep_ pat file =
   cmdBool "grep" ["-q", "-e", pat, file]
 
+#ifndef mingw32_HOST_OS
 -- | @sudo c args@ runs a command as sudo returning stdout
 --
 -- Result type changed from IO () to IO String in 0.2.0
@@ -324,6 +329,7 @@ sudoInternal exc c args = do
   when (uid /= 0 && noSudo) $
     warning "'sudo' not found"
   exc (fromMaybe c sd) (if noSudo then args else c:args)
+#endif
 
 -- | Combine two strings with a single space
 infixr 4 +-+
