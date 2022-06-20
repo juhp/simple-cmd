@@ -55,7 +55,7 @@ module SimpleCmd (
   shell, shell_,
   shellBool,
 #ifndef mingw32_HOST_OS
-  sudo, sudo_,
+  sudo, sudo_, sudoLog, sudoInternal,
 #endif
   PipeCommand,
   pipe, pipe_, pipeBool,
@@ -315,11 +315,25 @@ sudo = sudoInternal cmd
 -- | @sudo_ c args@ runs a command as sudo
 --
 -- @since 0.2.0
+-- @since 0.2.7 no longer logs (use sudoLog)
 sudo_ :: String -- ^ command
      -> [String] -- ^ arguments
      -> IO ()
-sudo_ = sudoInternal cmdLog
+sudo_ = sudoInternal cmd_
 
+-- | @sudo_ c args@ runs a command as sudo
+--
+-- @since 0.2.7
+sudoLog :: String -- ^ command
+     -> [String] -- ^ arguments
+     -> IO ()
+sudoLog = sudoInternal cmdLog
+
+-- | @sudoInternal@ converts a command runner to sudo
+--
+-- Uses sudo unless the effective uid is 0, otherwise errors if sudo not found.
+--
+-- @since 0.2.7
 sudoInternal :: (String -> [String] -> IO a) -> String -> [String] -> IO a
 sudoInternal exc c args = do
   uid <- getEffectiveUserID
