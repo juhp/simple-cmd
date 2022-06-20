@@ -35,7 +35,7 @@ module SimpleCmd (
   cmdLines,
   cmdMaybe,
   cmdFull,
-  cmdLog, cmdlog {-TODO: remove for 0.3 -},
+  cmdLog_, cmdLog, cmdlog {-TODO: remove for 0.3 -},
   cmdN,
   cmdQuiet,
   cmdSilent,
@@ -176,18 +176,24 @@ shellBool :: String -> IO Bool
 shellBool cs =
   boolWrapper (rawSystem "sh" ["-c", cs])
 
--- FIXME cmdLog_
--- | @cmdLog c args@ logs a command with a datestamp
+-- | @cmdLog_ c args@ logs a command with a datestamp
 --
--- @since 0.1.4
-cmdLog :: String -> [String] -> IO ()
-cmdLog c args = do
+-- @since 0.2.7
+cmdLog_ :: String -> [String] -> IO ()
+cmdLog_ c args = do
   logMsg $ unwords $ c:args
   cmd_ c args
 
--- | @cmdlog@ deprecated alias for 'cmdLog' (will be removed in 0.3)
+-- FIXME change in 0.3
+-- | deprecated, use @cmdLog_@ instead (will change type in 0.3)
+--
+-- @since 0.1.4
+cmdLog :: String -> [String] -> IO ()
+cmdLog = cmdLog_
+
+-- | @cmdlog@ deprecated alias for 'cmdLog_' (will be removed in 0.3)
 cmdlog :: String -> [String] -> IO ()
-cmdlog = cmdLog
+cmdlog = cmdLog_
 
 -- | @logMsg msg@ outputs message with a timestamp
 logMsg :: String -> IO ()
@@ -327,7 +333,7 @@ sudo_ = sudoInternal cmd_
 sudoLog :: String -- ^ command
      -> [String] -- ^ arguments
      -> IO ()
-sudoLog = sudoInternal cmdLog
+sudoLog = sudoInternal cmdLog_
 
 -- | @sudoInternal@ converts a command runner to sudo
 --
