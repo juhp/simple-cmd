@@ -47,6 +47,7 @@ module SimpleCmd (
   needProgram,
   error',
   warning,
+  newline,
   logMsg,
   (+-+),
   removePrefix, removeStrictPrefix, removeSuffix,
@@ -367,6 +368,11 @@ removeSuffix suffix orig =
 warning :: String -> IO ()
 warning s = hPutStrLn stderr $! s
 
+-- | output a newline
+--
+-- @since 0.2.7
+newline ::IO ()
+newline = putStrLn ""
 
 -- | Type alias for a command in a pipe
 --
