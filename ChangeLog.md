@@ -1,5 +1,12 @@
 # Version history for simple-cmd
 
+## 0.2.7 (2022-06-20)
+- allow building on Windows without unix (no sudo*)
+- add 'newline' to output newline
+- rename 'sudo_' to 'sudoLog' ('sudo_' no longer outputs log)
+- export 'sudoInternal' helper
+- provide 'cmdLog_' to be used instead of 'cmdLog'
+
 ## 0.2.6 (2022-05-18)
 - timeIO: print the duration in hours and minutes, not just seconds
 
