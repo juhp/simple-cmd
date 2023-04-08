@@ -330,7 +330,7 @@ sudo_ :: String -- ^ command
      -> IO ()
 sudo_ = sudoInternal cmd_
 
--- | @sudo_ c args@ runs a command as sudo
+-- | @sudoLog c args@ runs a command as sudo, showing the command
 --
 -- @since 0.2.7
 sudoLog :: String -- ^ command
