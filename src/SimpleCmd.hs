@@ -64,7 +64,7 @@ module SimpleCmd (
   whenM,
   filesWithExtension,
   fileWithExtension,
-  timeIO
+  timeIO, timeIOHelper
   ) where
 
 #if !MIN_VERSION_base(4,8,0)
@@ -523,13 +523,20 @@ isExtensionOf ext         = isSuffixOf ('.':ext) . takeExtensions
 
 -- | Run an IO action and then print how long it took
 timeIO :: IO a -> IO a
-timeIO action = do
+timeIO = timeIOHelper "took"
+
+-- | General timeIO with arbitrary preceding message
+--
+-- @since 0.2.8
+timeIOHelper :: String -> IO a -> IO a
+timeIOHelper msg action = do
   bracket
     getCurrentTime
     (\start -> do
         end <- getCurrentTime
         let duration = diffUTCTime end start
-        putStrLn $ "took " ++ renderDuration duration)
+        -- FIXME use stderr?
+        putStrLn $ msg +-+ renderDuration duration)
     (const action)
   where
 #if MIN_VERSION_time(1,9,0)
