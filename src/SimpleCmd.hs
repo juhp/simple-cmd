@@ -83,7 +83,7 @@ import Data.Time.Clock
 #if MIN_VERSION_time(1,9,0)
 import Data.Time.Format (formatTime, defaultTimeLocale)
 #endif
-import Safe (lastMay)
+import Safe (headMay, lastMay)
 import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
 import System.FilePath
@@ -360,8 +360,8 @@ infixr 4 +-+
 (+-+) :: String -> String -> String
 "" +-+ s = s
 s +-+ "" = s
-s +-+ t | last s == ' ' = s ++ t
-        | head t == ' ' = s ++ t
+s +-+ t | lastMay s == Just ' ' = s ++ t
+        | headMay t == Just ' ' = s ++ t
 s +-+ t = s ++ " " ++ t
 
 -- singleLine :: String -> String
