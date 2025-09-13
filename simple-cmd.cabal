@@ -36,6 +36,7 @@ library
                        extra,
                        filepath,
                        process >= 1.4.3.0,
+                       safe,
                        time
   if !os(windows)
    build-depends:      unix

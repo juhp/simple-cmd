@@ -83,6 +83,7 @@ import Data.Time.Clock
 #if MIN_VERSION_time(1,9,0)
 import Data.Time.Format (formatTime, defaultTimeLocale)
 #endif
+import Safe (lastMay)
 import System.Directory (findExecutable, listDirectory)
 import System.Exit (ExitCode (..))
 import System.FilePath
@@ -100,9 +101,8 @@ import System.Process (createProcess, CreateProcess (cmdspec), proc,
                        waitForProcess, withCreateProcess)
 
 removeTrailingNewline :: String -> String
-removeTrailingNewline "" = ""
 removeTrailingNewline str =
-  if last str == '\n'
+  if lastMay str == Just '\n'
   then init str
   else str
 
