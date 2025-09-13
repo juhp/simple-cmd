@@ -181,7 +181,7 @@ shellBool cs =
 -- @since 0.2.7
 cmdLog_ :: String -> [String] -> IO ()
 cmdLog_ c args = do
-  logMsg $ unwords $ c:args
+  logMsg $ quoteCmd c args
   cmd_ c args
 
 -- FIXME change in 0.3
