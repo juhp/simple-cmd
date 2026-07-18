@@ -1,5 +1,12 @@
 # Version history for simple-cmd
 
+## 0.2.8 (2026-07-18)
+- +-+: use lastMay and headMay
+- removeTrailingNewline: use safe lastMay
+- add timeIOHelper
+- cmdLog_: use quoteCmd
+- cmdN: only quote arg if it contains space(s)
+
 ## 0.2.7 (2022-06-20)
 - allow building on Windows without unix (no sudo*)
 - add 'newline' to output newline
