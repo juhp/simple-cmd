@@ -395,7 +395,7 @@ warning s = hPutStrLn stderr $! s
 --
 -- @since 0.2.7
 newline ::IO ()
-newline = putStrLn ""
+newline = putChar '\n'
 
 -- | Type alias for a command in a pipe
 --
