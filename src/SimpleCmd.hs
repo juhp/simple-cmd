@@ -204,7 +204,7 @@ logMsg msg = do
 -- | @cmdN c args@ dry-runs a command: prints command to stdout - more used for debugging
 cmdN :: String -> [String] -> IO ()
 cmdN c args =
-  putStrLn $ unwords $ c : map showQuote args
+  putStrLn $ unwords $ map showQuote $ c : args
   where
     showQuote cs = if ' ' `elem` cs then '\'' : cs ++ "'" else cs
 
